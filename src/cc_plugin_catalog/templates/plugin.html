@@ -4,7 +4,8 @@
 {% block og_title %}{{ plugin.name }} - {{ marketplace.name }}{% endblock %}
 {% block og_description %}{{ plugin.description or (plugin.name ~ ' plugin') }}{% endblock %}
 {% block og_type %}article{% endblock %}
-{% block og_url %}{% if page_url %}<meta property="og:url" content="{{ page_url }}">{% endif %}{% endblock %}
+{% block og_url %}<meta property="og:url" content="{{ page_url }}">{% endblock %}
+{% block og_image %}{{ base_url }}/static/{{ logo }}{% endblock %}
 {% block meta_description %}{{ plugin.description or (plugin.name ~ ' plugin') }}{% endblock %}
 {% block css_path %}../../static/style.css{% endblock %}
 {% block js_path %}../../static/theme.js{% endblock %}
