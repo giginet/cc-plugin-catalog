@@ -17,3 +17,25 @@ jobs:
         run: uv build
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+
+  update-major-tag:
+    runs-on: ubuntu-latest
+    needs: publish
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update major version tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          # Extract major version (v1.2.3 -> v1, v0.0.1 -> v0)
+          MAJOR="$(echo "$TAG" | grep -oE '^v[0-9]+' || true)"
+          if [ -z "$MAJOR" ]; then
+            echo "Tag '$TAG' does not match vX.Y.Z format, skipping."
+            exit 0
+          fi
+          echo "Moving tag $MAJOR to $TAG"
+          git tag -f "$MAJOR" "$TAG"
+          git push -f origin "$MAJOR"
