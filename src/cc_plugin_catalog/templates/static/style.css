@@ -220,6 +220,15 @@ a:hover {
     margin-right: 0.25rem;
 }
 
+.filter-link {
+    text-decoration: none;
+}
+
+.filter-link:hover {
+    text-decoration: none;
+    opacity: 0.8;
+}
+
 .filter-btn {
     cursor: pointer;
     border: none;

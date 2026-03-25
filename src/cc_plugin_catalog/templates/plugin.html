@@ -26,7 +26,7 @@
         <span class="meta-item">Author: <strong>{{ plugin.author.name }}</strong></span>
         {% endif %}
         {% if plugin.category %}
-        <span class="meta-item">Category: <span class="badge badge-category">{{ plugin.category }}</span></span>
+        <span class="meta-item">Category: <a href="../../index.html?category={{ plugin.category }}" class="badge badge-category filter-link">{{ plugin.category }}</a></span>
         {% endif %}
     </div>
 
