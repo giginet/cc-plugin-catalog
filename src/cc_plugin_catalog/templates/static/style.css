@@ -434,6 +434,18 @@ a:hover {
     border: 1px solid var(--border);
 }
 
+a.tag {
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+a.tag:hover {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    text-decoration: none;
+}
+
 .plugin-links {
     display: flex;
     gap: 0.75rem;
