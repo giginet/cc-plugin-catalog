@@ -94,6 +94,14 @@ a:hover {
     text-decoration: none;
 }
 
+.header-logo {
+    height: 24px;
+    width: auto;
+    vertical-align: middle;
+    margin-right: 0.5rem;
+    border-radius: 4px;
+}
+
 .header-actions {
     display: flex;
     align-items: center;

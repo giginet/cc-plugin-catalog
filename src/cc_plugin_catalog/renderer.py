@@ -69,6 +69,7 @@ def render_index(
     output_dir: Path,
     *,
     base_url: str | None = None,
+    logo: str | None = None,
 ) -> None:
     """Render the index page with plugin grid."""
     env = _create_env()
@@ -82,6 +83,7 @@ def render_index(
         tags=tags,
         tool_types=tool_types,
         base_url=base_url or "",
+        logo=logo,
     )
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "index.html").write_text(html, encoding="utf-8")
@@ -93,6 +95,7 @@ def render_plugin_page(
     output_dir: Path,
     *,
     base_url: str | None = None,
+    logo: str | None = None,
 ) -> None:
     """Render an individual plugin detail page."""
     env = _create_env()
@@ -103,6 +106,7 @@ def render_plugin_page(
         marketplace=marketplace,
         base_url=base_url or "",
         page_url=page_url,
+        logo=logo,
     )
     plugin_dir = output_dir / "plugins" / plugin.name
     plugin_dir.mkdir(parents=True, exist_ok=True)
@@ -145,11 +149,14 @@ def render_site(
     output_dir: Path,
     *,
     base_url: str | None = None,
+    logo: str | None = None,
 ) -> None:
     """Render the complete static site."""
-    render_index(marketplace, output_dir, base_url=base_url)
+    render_index(marketplace, output_dir, base_url=base_url, logo=logo)
     for plugin in marketplace.plugins:
-        render_plugin_page(plugin, marketplace, output_dir, base_url=base_url)
+        render_plugin_page(
+            plugin, marketplace, output_dir, base_url=base_url, logo=logo
+        )
 
     # Category pages
     cat_map: dict[str, list[Plugin]] = {}

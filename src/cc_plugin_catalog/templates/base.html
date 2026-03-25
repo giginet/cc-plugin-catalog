@@ -14,7 +14,10 @@
 <body data-theme="light">
     <header class="site-header">
         <div class="header-inner">
-            <a href="{% block home_href %}index.html{% endblock %}" class="header-title">{{ marketplace.name }}</a>
+            <a href="{% block home_href %}index.html{% endblock %}" class="header-title">
+                {% if logo %}<img src="{% block logo_path %}static/{{ logo }}{% endblock %}" alt="" class="header-logo">{% endif %}
+                {{ marketplace.name }}
+            </a>
             <div class="header-actions">
                 {% if marketplace.repository_url %}
                 <a href="{{ marketplace.repository_url }}" class="header-github" target="_blank" rel="noopener" aria-label="GitHub repository">
