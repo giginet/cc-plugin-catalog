@@ -39,5 +39,5 @@ select = ["E", "F", "I", "UP"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
-[tool.ty]
+[tool.ty.environment]
 python-version = "3.12"
