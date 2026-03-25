@@ -139,42 +139,6 @@ jobs:
         uses: actions/deploy-pages@v4
 ```
 
-## CLI Reference
-
-```
-Usage: cc-plugin-catalog [OPTIONS] COMMAND [ARGS]...
-
-Commands:
-  build    Build a static site from a Plugin Marketplace repository.
-  preview  Build and serve the site locally with live preview.
-```
-
-### `build`
-
-```bash
-cc-plugin-catalog build <REPO_PATH> [-o OUTPUT] [--base-url URL] [--logo PATH]
-```
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `-o`, `--output` | `_site` | Output directory |
-| `--base-url` | | Base URL for OGP meta tags |
-| `--logo` | | Path to a logo image for the header |
-
-### `preview`
-
-```bash
-cc-plugin-catalog preview <REPO_PATH> [-o OUTPUT] [-p PORT] [--host HOST] [--base-url URL] [--logo PATH]
-```
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `-o`, `--output` | `_site` | Output directory |
-| `-p`, `--port` | `8000` | Port to serve on |
-| `--host` | `localhost` | Host to bind to |
-| `--base-url` | | Base URL for OGP meta tags |
-| `--logo` | | Path to a logo image for the header |
-
 ## Supported Plugin Components
 
 cc-plugin-catalog detects and displays the following component types from plugin directories:
