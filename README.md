@@ -10,6 +10,8 @@
 
 Static site generator for [Claude Code Plugin Marketplace](https://code.claude.com/docs/en/plugin-marketplaces) repositories.
 
+![cc-plugin-catalog screenshot](docs/sample.png)
+
 Generate a beautiful, responsive catalog page from your marketplace's `marketplace.json` and `plugin.json` files — and deploy it to GitHub Pages with a single reusable workflow.
 
 ## Features
