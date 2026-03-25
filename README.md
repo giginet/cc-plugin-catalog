@@ -86,6 +86,7 @@ That's it! Every push to `main` will build your catalog and deploy it to GitHub 
 | `catalog-version` | `""` (latest) | `cc-plugin-catalog` version to install |
 | `output-dir` | `"_site"` | Output directory for generated files |
 | `base-url` | `""` | Base URL for OGP meta tags (e.g. `https://example.github.io/my-marketplace`) |
+| `logo` | `""` | Path to a logo image in the repository (e.g. `assets/logo.png`) |
 
 ```yaml
 jobs:
@@ -93,7 +94,10 @@ jobs:
     uses: giginet/cc-plugin-catalog/.github/workflows/build-pages.yml@v1
     with:
       base-url: "https://example.github.io/my-marketplace"
+      logo: "assets/logo.png"
 ```
+
+The `logo` path is relative to the repository root. Simply commit an image file (PNG, SVG, etc.) to your repository and reference it.
 
 ## CLI Reference
 

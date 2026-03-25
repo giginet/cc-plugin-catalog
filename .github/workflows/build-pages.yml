@@ -14,6 +14,10 @@ on:
         type: string
         default: ""
         description: "Base URL for OGP meta tags (e.g. https://example.github.io/my-marketplace)"
+      logo:
+        type: string
+        default: ""
+        description: "Path to a logo image in the repository (e.g. assets/logo.png)"
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -30,7 +34,7 @@ jobs:
       - name: Install cc-plugin-catalog
         run: pip install --quiet cc-plugin-catalog${{ inputs.catalog-version && format('=={0}', inputs.catalog-version) || '' }}
       - name: Build site
-        run: cc-plugin-catalog build . -o ${{ inputs.output-dir }}${{ inputs.base-url && format(' --base-url {0}', inputs.base-url) || '' }}
+        run: cc-plugin-catalog build . -o ${{ inputs.output-dir }}${{ inputs.base-url && format(' --base-url {0}', inputs.base-url) || '' }}${{ inputs.logo && format(' --logo {0}', inputs.logo) || '' }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ${{ inputs.output-dir }}
