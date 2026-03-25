@@ -13,49 +13,115 @@
     </div>
 </section>
 
-<section class="plugin-grid">
+<section class="search-section">
+    <input type="text" id="plugin-search" class="search-input" placeholder="Search plugins..." autocomplete="off">
+</section>
+
+{% if categories %}
+<section class="filter-section">
+    <span class="filter-label">Categories:</span>
+    {% for cat in categories %}
+    <button type="button" class="badge badge-category filter-btn" data-filter-type="category" data-filter-value="{{ cat }}">{{ cat }}</button>
+    {% endfor %}
+</section>
+{% endif %}
+
+{% if tags %}
+<section class="filter-section">
+    <span class="filter-label">Tags:</span>
+    {% for tag in tags %}
+    <button type="button" class="badge badge-tag filter-btn" data-filter-type="tag" data-filter-value="{{ tag }}">{{ tag }}</button>
+    {% endfor %}
+</section>
+{% endif %}
+
+<section class="plugin-grid" id="plugin-grid">
     {% for plugin in marketplace.plugins %}
-    <article class="plugin-card">
-        <div class="card-body">
-            <h2 class="card-title">
-                <a href="plugins/{{ plugin.name }}/index.html">{{ plugin.name }}</a>
-            </h2>
-            {% if plugin.description %}
-            <p class="card-description">{{ plugin.description }}</p>
-            {% endif %}
-            <div class="card-badges">
-                {% if plugin.category %}
-                <span class="badge badge-category">{{ plugin.category }}</span>
+    <article class="plugin-card" data-name="{{ plugin.name }}" data-description="{{ plugin.description or '' }}" data-category="{{ plugin.category or '' }}" data-tags="{{ plugin.tags | join(' ') }}" data-keywords="{{ plugin.keywords | join(' ') }}">
+        <a href="plugins/{{ plugin.name }}/index.html" class="card-link">
+            <div class="card-body">
+                <h2 class="card-title">{{ plugin.name }}</h2>
+                {% if plugin.description %}
+                <p class="card-description">{{ plugin.description }}</p>
                 {% endif %}
-                {% if plugin.components.skills %}
-                <span class="badge badge-skills">Skills</span>
+                <div class="card-badges">
+                    {% if plugin.category %}
+                    <span class="badge badge-category">{{ plugin.category }}</span>
+                    {% endif %}
+                    {% if plugin.components.skills %}
+                    <span class="badge badge-skills">Skills</span>
+                    {% endif %}
+                    {% if plugin.components.commands %}
+                    <span class="badge badge-commands">Commands</span>
+                    {% endif %}
+                    {% if plugin.components.agents %}
+                    <span class="badge badge-agents">Agents</span>
+                    {% endif %}
+                    {% if plugin.components.hooks %}
+                    <span class="badge badge-hooks">Hooks</span>
+                    {% endif %}
+                    {% if plugin.components.mcp_servers %}
+                    <span class="badge badge-mcp">MCP</span>
+                    {% endif %}
+                    {% if plugin.components.lsp_servers %}
+                    <span class="badge badge-lsp">LSP</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-footer">
+                {% if plugin.author %}
+                <span class="card-author">{{ plugin.author.name }}</span>
                 {% endif %}
-                {% if plugin.components.commands %}
-                <span class="badge badge-commands">Commands</span>
-                {% endif %}
-                {% if plugin.components.agents %}
-                <span class="badge badge-agents">Agents</span>
-                {% endif %}
-                {% if plugin.components.hooks %}
-                <span class="badge badge-hooks">Hooks</span>
-                {% endif %}
-                {% if plugin.components.mcp_servers %}
-                <span class="badge badge-mcp">MCP</span>
-                {% endif %}
-                {% if plugin.components.lsp_servers %}
-                <span class="badge badge-lsp">LSP</span>
+                {% if plugin.version %}
+                <span class="card-version">v{{ plugin.version }}</span>
                 {% endif %}
             </div>
-        </div>
-        <div class="card-footer">
-            {% if plugin.author %}
-            <span class="card-author">{{ plugin.author.name }}</span>
-            {% endif %}
-            {% if plugin.version %}
-            <span class="card-version">v{{ plugin.version }}</span>
-            {% endif %}
-        </div>
+        </a>
     </article>
     {% endfor %}
 </section>
+
+<script>
+(function() {
+    var input = document.getElementById('plugin-search');
+    var grid = document.getElementById('plugin-grid');
+    if (!input || !grid) return;
+    var cards = grid.querySelectorAll('.plugin-card');
+    var filterBtns = document.querySelectorAll('.filter-btn');
+    var activeFilter = { type: null, value: null };
+
+    function applyFilters() {
+        var q = input.value.toLowerCase();
+        cards.forEach(function(card) {
+            var text = (card.dataset.name + ' ' + card.dataset.description + ' ' + card.dataset.category + ' ' + card.dataset.tags + ' ' + card.dataset.keywords).toLowerCase();
+            var matchSearch = !q || text.indexOf(q) !== -1;
+            var matchFilter = true;
+            if (activeFilter.type === 'category') {
+                matchFilter = card.dataset.category === activeFilter.value;
+            } else if (activeFilter.type === 'tag') {
+                matchFilter = (' ' + card.dataset.tags + ' ').indexOf(' ' + activeFilter.value + ' ') !== -1;
+            }
+            card.style.display = matchSearch && matchFilter ? '' : 'none';
+        });
+    }
+
+    input.addEventListener('input', applyFilters);
+
+    filterBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var type = this.dataset.filterType;
+            var value = this.dataset.filterValue;
+            if (activeFilter.type === type && activeFilter.value === value) {
+                activeFilter = { type: null, value: null };
+                this.classList.remove('filter-active');
+            } else {
+                filterBtns.forEach(function(b) { b.classList.remove('filter-active'); });
+                activeFilter = { type: type, value: value };
+                this.classList.add('filter-active');
+            }
+            applyFilters();
+        });
+    });
+})();
+</script>
 {% endblock %}

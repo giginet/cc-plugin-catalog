@@ -19,11 +19,33 @@ def _create_env() -> Environment:
     )
 
 
+def _collect_categories(plugins: list[Plugin]) -> list[str]:
+    cats: set[str] = set()
+    for p in plugins:
+        if p.category:
+            cats.add(p.category)
+    return sorted(cats)
+
+
+def _collect_tags(plugins: list[Plugin]) -> list[str]:
+    tags: set[str] = set()
+    for p in plugins:
+        for t in p.tags:
+            tags.add(t)
+    return sorted(tags)
+
+
 def render_index(marketplace: Marketplace, output_dir: Path) -> None:
     """Render the index page with plugin grid."""
     env = _create_env()
     template = env.get_template("index.html")
-    html = template.render(marketplace=marketplace)
+    categories = _collect_categories(marketplace.plugins)
+    tags = _collect_tags(marketplace.plugins)
+    html = template.render(
+        marketplace=marketplace,
+        categories=categories,
+        tags=tags,
+    )
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "index.html").write_text(html, encoding="utf-8")
 
@@ -40,6 +62,28 @@ def render_plugin_page(
     (plugin_dir / "index.html").write_text(html, encoding="utf-8")
 
 
+def render_category_page(
+    label_type: str,
+    label_value: str,
+    plugins: list[Plugin],
+    marketplace: Marketplace,
+    output_dir: Path,
+) -> None:
+    """Render a category or tag listing page."""
+    env = _create_env()
+    template = env.get_template("category.html")
+    html = template.render(
+        label_type=label_type,
+        label_value=label_value,
+        plugins=plugins,
+        marketplace=marketplace,
+    )
+    prefix = "categories" if label_type == "Category" else "tags"
+    page_dir = output_dir / prefix / label_value
+    page_dir.mkdir(parents=True, exist_ok=True)
+    (page_dir / "index.html").write_text(html, encoding="utf-8")
+
+
 def copy_static(output_dir: Path) -> None:
     """Copy static assets (CSS, JS) to the output directory."""
     static_src = TEMPLATES_DIR / "static"
@@ -54,4 +98,19 @@ def render_site(marketplace: Marketplace, output_dir: Path) -> None:
     render_index(marketplace, output_dir)
     for plugin in marketplace.plugins:
         render_plugin_page(plugin, marketplace, output_dir)
+
+    # Category pages
+    cat_map: dict[str, list[Plugin]] = {}
+    tag_map: dict[str, list[Plugin]] = {}
+    for plugin in marketplace.plugins:
+        if plugin.category:
+            cat_map.setdefault(plugin.category, []).append(plugin)
+        for tag in plugin.tags:
+            tag_map.setdefault(tag, []).append(plugin)
+
+    for cat, plugins in sorted(cat_map.items()):
+        render_category_page("Category", cat, plugins, marketplace, output_dir)
+    for tag, plugins in sorted(tag_map.items()):
+        render_category_page("Tag", tag, plugins, marketplace, output_dir)
+
     copy_static(output_dir)

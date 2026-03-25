@@ -66,3 +66,22 @@ class TestBuildSite:
         content = (tmp_path / "plugins" / "external-plugin" / "index.html").read_text()
         assert "external-plugin" in content
         assert "An external plugin" in content
+
+    def test_category_pages_generated(
+        self, sample_marketplace_path: Path, tmp_path: Path
+    ) -> None:
+        build_site(sample_marketplace_path, tmp_path)
+        cat_page = tmp_path / "categories" / "development" / "index.html"
+        assert cat_page.exists()
+        content = cat_page.read_text()
+        assert "full-plugin" in content
+
+    def test_readme_rendered_not_escaped(
+        self, sample_marketplace_path: Path, tmp_path: Path
+    ) -> None:
+        build_site(sample_marketplace_path, tmp_path)
+        content = (tmp_path / "plugins" / "full-plugin" / "index.html").read_text()
+        # README should be rendered as HTML, not escaped
+        assert "Full Plugin" in content
+        assert "<ul>" in content
+        assert "&lt;ul&gt;" not in content

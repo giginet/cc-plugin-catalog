@@ -176,7 +176,7 @@
 <section class="readme-section">
     <h2>README</h2>
     <div class="markdown-content">
-        {{ plugin.readme_html }}
+        {{ plugin.readme_html | safe }}
     </div>
 </section>
 {% endif %}

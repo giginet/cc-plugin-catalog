@@ -159,10 +159,66 @@ a:hover {
     color: var(--text-secondary);
 }
 
+/* === Search === */
+.search-section {
+    margin-bottom: 1.25rem;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.65rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-card);
+    color: var(--text);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.search-input:focus {
+    border-color: var(--accent);
+}
+
+.search-input::placeholder {
+    color: var(--text-secondary);
+}
+
+/* === Filter Section === */
+.filter-section {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.filter-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-right: 0.25rem;
+}
+
+.filter-btn {
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.2s, outline 0.2s;
+}
+
+.filter-btn:hover {
+    opacity: 0.8;
+}
+
+.filter-btn.filter-active {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
 /* === Plugin Grid === */
 .plugin-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
 }
 
@@ -181,6 +237,19 @@ a:hover {
     transform: translateY(-2px);
 }
 
+.card-link {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    color: inherit;
+    text-decoration: none;
+}
+
+.card-link:hover {
+    color: inherit;
+    text-decoration: none;
+}
+
 .card-body {
     padding: 1.25rem;
     flex: 1;
@@ -189,15 +258,11 @@ a:hover {
 .card-title {
     font-size: 1.125rem;
     margin-bottom: 0.5rem;
-}
-
-.card-title a {
     color: var(--text);
 }
 
-.card-title a:hover {
+.plugin-card:hover .card-title {
     color: var(--accent);
-    text-decoration: none;
 }
 
 .card-description {
@@ -239,6 +304,12 @@ a:hover {
 .badge-category {
     background: var(--badge-category-bg);
     color: var(--badge-category-text);
+}
+
+.badge-tag {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
 }
 
 .badge-skills {
@@ -491,6 +562,12 @@ a:hover {
 }
 
 /* === Responsive === */
+@media (max-width: 1024px) {
+    .plugin-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 640px) {
     .plugin-grid {
         grid-template-columns: 1fr;
