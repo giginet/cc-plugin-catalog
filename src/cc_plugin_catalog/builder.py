@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+import subprocess
 from pathlib import Path
 
 from .markdown_utils import render_markdown
@@ -18,17 +20,90 @@ def _resolve_plugin_path(repo_path: Path, source: str | dict) -> Path | None:
     return None
 
 
+def _get_repo_base_url(repo_path: Path) -> str | None:
+    """Get the GitHub browse URL from the git remote origin."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repo_path), "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        url = result.stdout.strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
+
+    # Convert git@ or https .git URLs to browse URL
+    url = re.sub(r"\.git$", "", url)
+    url = re.sub(r"^git@github\.com:", "https://github.com/", url)
+    return url
+
+
+def _get_default_branch(repo_path: Path) -> str:
+    """Get the current branch name."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repo_path), "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout.strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return "main"
+
+
+def _build_source_url(
+    source: str | dict,
+    repo_base_url: str | None,
+    branch: str,
+) -> str | None:
+    """Build a browsable URL for a plugin source."""
+    if isinstance(source, str) and source.startswith("./"):
+        if repo_base_url:
+            path = source.lstrip("./")
+            return f"{repo_base_url}/tree/{branch}/{path}"
+        return None
+
+    if isinstance(source, dict):
+        src_type = source.get("source", "")
+        if src_type == "github":
+            repo = source.get("repo", "")
+            ref = source.get("ref", "")
+            url = f"https://github.com/{repo}"
+            if ref:
+                url += f"/tree/{ref}"
+            return url
+        if src_type == "url":
+            url = re.sub(r"\.git$", "", source.get("url", ""))
+            ref = source.get("ref", "")
+            if ref:
+                url += f"/tree/{ref}"
+            return url
+        if src_type == "git-subdir":
+            url = re.sub(r"\.git$", "", source.get("url", ""))
+            ref = source.get("ref", branch)
+            path = source.get("path", "")
+            return f"{url}/tree/{ref}/{path}"
+
+    return None
+
+
 def build_site(repo_path: Path, output_dir: Path) -> None:
     """Build the complete static site from a marketplace repository."""
     repo_path = repo_path.resolve()
     output_dir = output_dir.resolve()
 
     config = parse_marketplace(repo_path)
+    repo_base_url = _get_repo_base_url(repo_path)
+    branch = _get_default_branch(repo_path)
 
     plugins: list[Plugin] = []
     for entry in config.plugins:
         plugin_path = _resolve_plugin_path(repo_path, entry.source)
         is_local = plugin_path is not None and plugin_path.is_dir()
+
+        source_url = _build_source_url(entry.source, repo_base_url, branch)
 
         # Start with marketplace entry metadata
         plugin = Plugin(
@@ -43,6 +118,7 @@ def build_site(repo_path: Path, output_dir: Path) -> None:
             category=entry.category,
             tags=entry.tags,
             source=entry.source,
+            source_url=source_url,
             is_local=is_local,
         )
 
@@ -76,6 +152,7 @@ def build_site(repo_path: Path, output_dir: Path) -> None:
         name=config.name,
         description=config.metadata.description if config.metadata else None,
         owner=config.owner,
+        repository_url=repo_base_url,
         plugins=plugins,
     )
 

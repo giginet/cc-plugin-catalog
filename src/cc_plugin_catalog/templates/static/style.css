@@ -94,6 +94,26 @@ a:hover {
     text-decoration: none;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header-github {
+    display: flex;
+    align-items: center;
+    color: var(--text-secondary);
+    padding: 0.4rem;
+    border-radius: 8px;
+    transition: color 0.2s;
+}
+
+.header-github:hover {
+    color: var(--text);
+    text-decoration: none;
+}
+
 .theme-toggle {
     background: none;
     border: 1px solid var(--border);

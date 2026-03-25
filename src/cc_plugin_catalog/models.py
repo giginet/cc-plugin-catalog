@@ -106,6 +106,7 @@ class Plugin(BaseModel):
     category: str | None = None
     tags: list[str] = []
     source: str | dict = ""
+    source_url: str | None = None
     components: PluginComponents = PluginComponents()
     readme_html: str | None = None
     license_text: str | None = None
@@ -123,4 +124,5 @@ class Marketplace(BaseModel):
     name: str
     description: str | None = None
     owner: Owner
+    repository_url: str | None = None
     plugins: list[Plugin] = []

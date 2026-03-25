@@ -47,6 +47,9 @@
     {% endif %}
 
     <div class="plugin-links">
+        {% if plugin.source_url %}
+        <a href="{{ plugin.source_url }}" class="link-button" target="_blank" rel="noopener">Source</a>
+        {% endif %}
         {% if plugin.homepage %}
         <a href="{{ plugin.homepage }}" class="link-button" target="_blank" rel="noopener">Homepage</a>
         {% endif %}
