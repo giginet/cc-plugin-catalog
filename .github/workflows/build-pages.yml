@@ -2,18 +2,19 @@ name: Build and Deploy Plugin Catalog
 on:
   workflow_call:
     inputs:
-      python-version:
-        type: string
-        default: "3.12"
       catalog-version:
         type: string
         default: ""
+        description: "cc-plugin-catalog version to install (empty = latest)"
       output-dir:
         type: string
         default: "_site"
+        description: "Output directory for generated files"
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    container:
+      image: python:3.12-slim
     permissions:
       pages: write
       id-token: write
@@ -22,9 +23,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
       - name: Install cc-plugin-catalog
-        run: uv tool install cc-plugin-catalog
+        run: pip install --quiet cc-plugin-catalog${{ inputs.catalog-version && format('=={0}', inputs.catalog-version) || '' }}
       - name: Build site
         run: cc-plugin-catalog build . -o ${{ inputs.output-dir }}
       - uses: actions/upload-pages-artifact@v3

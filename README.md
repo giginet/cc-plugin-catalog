@@ -83,7 +83,6 @@ That's it! Every push to `main` will build your catalog and deploy it to GitHub 
 
 | Input | Default | Description |
 |-------|---------|-------------|
-| `python-version` | `"3.12"` | Python version to use |
 | `catalog-version` | `""` (latest) | `cc-plugin-catalog` version to install |
 | `output-dir` | `"_site"` | Output directory for generated files |
 
