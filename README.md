@@ -85,14 +85,14 @@ That's it! Every push to `main` will build your catalog and deploy it to GitHub 
 |-------|---------|-------------|
 | `catalog-version` | `""` (latest) | `cc-plugin-catalog` version to install |
 | `output-dir` | `"_site"` | Output directory for generated files |
+| `base-url` | `""` | Base URL for OGP meta tags (e.g. `https://example.github.io/my-marketplace`) |
 
 ```yaml
 jobs:
   deploy:
     uses: giginet/cc-plugin-catalog/.github/workflows/build-pages.yml@v1
     with:
-      catalog-version: "0.0.1"
-      output-dir: "dist"
+      base-url: "https://example.github.io/my-marketplace"
 ```
 
 ## CLI Reference
@@ -108,17 +108,19 @@ Commands:
 ### `build`
 
 ```bash
-cc-plugin-catalog build <REPO_PATH> [-o OUTPUT]
+cc-plugin-catalog build <REPO_PATH> [-o OUTPUT] [--base-url URL] [--logo PATH]
 ```
 
 | Option | Default | Description |
 |--------|---------|-------------|
 | `-o`, `--output` | `_site` | Output directory |
+| `--base-url` | | Base URL for OGP meta tags |
+| `--logo` | | Path to a logo image for the header |
 
 ### `preview`
 
 ```bash
-cc-plugin-catalog preview <REPO_PATH> [-o OUTPUT] [-p PORT] [--host HOST]
+cc-plugin-catalog preview <REPO_PATH> [-o OUTPUT] [-p PORT] [--host HOST] [--base-url URL] [--logo PATH]
 ```
 
 | Option | Default | Description |
@@ -126,6 +128,8 @@ cc-plugin-catalog preview <REPO_PATH> [-o OUTPUT] [-p PORT] [--host HOST]
 | `-o`, `--output` | `_site` | Output directory |
 | `-p`, `--port` | `8000` | Port to serve on |
 | `--host` | `localhost` | Host to bind to |
+| `--base-url` | | Base URL for OGP meta tags |
+| `--logo` | | Path to a logo image for the header |
 
 ## Supported Plugin Components
 
