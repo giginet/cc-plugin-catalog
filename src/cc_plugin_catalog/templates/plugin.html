@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}{{ plugin.name }} - {{ marketplace.name }}{% endblock %}
+{% block css_path %}../../static/style.css{% endblock %}
+{% block js_path %}../../static/theme.js{% endblock %}
+{% block home_href %}../../index.html{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+    <a href="../../index.html">Home</a>
+    <span class="breadcrumb-sep">&rsaquo;</span>
+    <span>{{ plugin.name }}</span>
+</nav>
+
+<section class="plugin-header">
+    <h1>{{ plugin.name }}</h1>
+    {% if plugin.description %}
+    <p class="plugin-description">{{ plugin.description }}</p>
+    {% endif %}
+
+    <div class="plugin-meta">
+        {% if plugin.version %}
+        <span class="meta-item">Version: <strong>{{ plugin.version }}</strong></span>
+        {% endif %}
+        {% if plugin.author %}
+        <span class="meta-item">Author: <strong>{{ plugin.author.name }}</strong></span>
+        {% endif %}
+        {% if plugin.category %}
+        <span class="meta-item">Category: <span class="badge badge-category">{{ plugin.category }}</span></span>
+        {% endif %}
+    </div>
+
+    {% if plugin.keywords %}
+    <div class="plugin-keywords">
+        {% for kw in plugin.keywords %}
+        <span class="keyword">{{ kw }}</span>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if plugin.tags %}
+    <div class="plugin-tags">
+        {% for tag in plugin.tags %}
+        <span class="tag">{{ tag }}</span>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="plugin-links">
+        {% if plugin.homepage %}
+        <a href="{{ plugin.homepage }}" class="link-button" target="_blank" rel="noopener">Homepage</a>
+        {% endif %}
+        {% if plugin.repository %}
+        <a href="{{ plugin.repository }}" class="link-button" target="_blank" rel="noopener">Repository</a>
+        {% endif %}
+    </div>
+</section>
+
+{% if plugin.components.skills %}
+<section class="component-section">
+    <h2><span class="badge badge-skills">Skills</span></h2>
+    <table class="component-table">
+        <thead>
+            <tr><th>Name</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            {% for skill in plugin.components.skills %}
+            <tr>
+                <td><code>{{ skill.name }}</code></td>
+                <td>{{ skill.description or "" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% if plugin.components.commands %}
+<section class="component-section">
+    <h2><span class="badge badge-commands">Commands</span></h2>
+    <table class="component-table">
+        <thead>
+            <tr><th>Name</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            {% for cmd in plugin.components.commands %}
+            <tr>
+                <td><code>{{ cmd.name }}</code></td>
+                <td>{{ cmd.description or "" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% if plugin.components.agents %}
+<section class="component-section">
+    <h2><span class="badge badge-agents">Agents</span></h2>
+    <table class="component-table">
+        <thead>
+            <tr><th>Name</th><th>Description</th><th>Model</th></tr>
+        </thead>
+        <tbody>
+            {% for agent in plugin.components.agents %}
+            <tr>
+                <td><code>{{ agent.name }}</code></td>
+                <td>{{ agent.description or "" }}</td>
+                <td>{{ agent.model or "" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% if plugin.components.hooks %}
+<section class="component-section">
+    <h2><span class="badge badge-hooks">Hooks</span></h2>
+    <table class="component-table">
+        <thead>
+            <tr><th>Event</th><th>Matcher</th><th>Type</th></tr>
+        </thead>
+        <tbody>
+            {% for hook in plugin.components.hooks %}
+            <tr>
+                <td><code>{{ hook.event_name }}</code></td>
+                <td>{{ hook.matcher or "" }}</td>
+                <td>{{ hook.hook_type }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% if plugin.components.mcp_servers %}
+<section class="component-section">
+    <h2><span class="badge badge-mcp">MCP Servers</span></h2>
+    <table class="component-table">
+        <thead>
+            <tr><th>Name</th><th>Command</th></tr>
+        </thead>
+        <tbody>
+            {% for mcp in plugin.components.mcp_servers %}
+            <tr>
+                <td><code>{{ mcp.name }}</code></td>
+                <td><code>{{ mcp.command }}</code></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% if plugin.components.lsp_servers %}
+<section class="component-section">
+    <h2><span class="badge badge-lsp">LSP Servers</span></h2>
+    <table class="component-table">
+        <thead>
+            <tr><th>Name</th><th>Command</th></tr>
+        </thead>
+        <tbody>
+            {% for lsp in plugin.components.lsp_servers %}
+            <tr>
+                <td><code>{{ lsp.name }}</code></td>
+                <td><code>{{ lsp.command }}</code></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% if plugin.readme_html %}
+<section class="readme-section">
+    <h2>README</h2>
+    <div class="markdown-content">
+        {{ plugin.readme_html }}
+    </div>
+</section>
+{% endif %}
+
+{% if plugin.license_text %}
+<section class="license-section">
+    <h2>License{% if plugin.license_id %} ({{ plugin.license_id }}){% endif %}</h2>
+    <pre class="license-text">{{ plugin.license_text }}</pre>
+</section>
+{% endif %}
+{% endblock %}

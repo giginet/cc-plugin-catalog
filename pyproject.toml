@@ -1,7 +1,43 @@
 [project]
 name = "cc-plugin-catalog"
 version = "0.1.0"
-description = "Add your description here"
+description = "Static site generator for Claude Code Plugin Marketplace repositories"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "click>=8.1",
+    "jinja2>=3.1",
+    "markdown>=3.5",
+    "pydantic>=2.0",
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+cc-plugin-catalog = "cc_plugin_catalog.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cc_plugin_catalog"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.11",
+    "ty>=0.0.1a1",
+]
+
+[tool.ruff]
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ty]
+python-version = "3.12"

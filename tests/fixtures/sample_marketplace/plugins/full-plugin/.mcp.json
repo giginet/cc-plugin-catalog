@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "db-server": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/db-server",
+      "args": ["--port", "3000"]
+    },
+    "cache-server": {
+      "command": "redis-mcp",
+      "args": []
+    }
+  }
+}

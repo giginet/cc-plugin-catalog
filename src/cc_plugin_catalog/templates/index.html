@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ marketplace.name }} - Plugin Marketplace{% endblock %}
+
+{% block content %}
+<section class="marketplace-info">
+    {% if marketplace.description %}
+    <p class="marketplace-description">{{ marketplace.description }}</p>
+    {% endif %}
+    <div class="marketplace-meta">
+        <span class="meta-item">Owner: <strong>{{ marketplace.owner.name }}</strong></span>
+        <span class="meta-item">Plugins: <strong>{{ marketplace.plugins | length }}</strong></span>
+    </div>
+</section>
+
+<section class="plugin-grid">
+    {% for plugin in marketplace.plugins %}
+    <article class="plugin-card">
+        <div class="card-body">
+            <h2 class="card-title">
+                <a href="plugins/{{ plugin.name }}/index.html">{{ plugin.name }}</a>
+            </h2>
+            {% if plugin.description %}
+            <p class="card-description">{{ plugin.description }}</p>
+            {% endif %}
+            <div class="card-badges">
+                {% if plugin.category %}
+                <span class="badge badge-category">{{ plugin.category }}</span>
+                {% endif %}
+                {% if plugin.components.skills %}
+                <span class="badge badge-skills">Skills</span>
+                {% endif %}
+                {% if plugin.components.commands %}
+                <span class="badge badge-commands">Commands</span>
+                {% endif %}
+                {% if plugin.components.agents %}
+                <span class="badge badge-agents">Agents</span>
+                {% endif %}
+                {% if plugin.components.hooks %}
+                <span class="badge badge-hooks">Hooks</span>
+                {% endif %}
+                {% if plugin.components.mcp_servers %}
+                <span class="badge badge-mcp">MCP</span>
+                {% endif %}
+                {% if plugin.components.lsp_servers %}
+                <span class="badge badge-lsp">LSP</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-footer">
+            {% if plugin.author %}
+            <span class="card-author">{{ plugin.author.name }}</span>
+            {% endif %}
+            {% if plugin.version %}
+            <span class="card-version">v{{ plugin.version }}</span>
+            {% endif %}
+        </div>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

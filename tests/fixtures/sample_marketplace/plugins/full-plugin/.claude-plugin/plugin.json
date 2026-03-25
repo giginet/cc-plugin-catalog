@@ -1,0 +1,13 @@
+{
+  "name": "full-plugin",
+  "version": "1.2.0",
+  "description": "A full-featured plugin for testing",
+  "author": {
+    "name": "Plugin Author",
+    "email": "author@example.com"
+  },
+  "homepage": "https://example.com/full-plugin",
+  "repository": "https://github.com/example/full-plugin",
+  "license": "MIT",
+  "keywords": ["testing", "example"]
+}

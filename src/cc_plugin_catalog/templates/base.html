@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ marketplace.name }}{% endblock %}</title>
+    <link rel="stylesheet" href="{% block css_path %}static/style.css{% endblock %}">
+</head>
+<body data-theme="light">
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="{% block home_href %}index.html{% endblock %}" class="header-title">{{ marketplace.name }}</a>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                <span class="theme-icon-light">&#9790;</span>
+                <span class="theme-icon-dark">&#9728;</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <p>&copy; {{ marketplace.owner.name }}{% if marketplace.owner.email %} &mdash; {{ marketplace.owner.email }}{% endif %}</p>
+            <p class="footer-powered">Powered by <a href="https://github.com/giginet/cc-plugin-catalog">cc-plugin-catalog</a></p>
+        </div>
+    </footer>
+
+    <script src="{% block js_path %}static/theme.js{% endblock %}"></script>
+</body>
+</html>

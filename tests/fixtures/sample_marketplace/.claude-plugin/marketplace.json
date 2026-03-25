@@ -1,0 +1,40 @@
+{
+  "name": "sample-marketplace",
+  "owner": {
+    "name": "Test Author",
+    "email": "test@example.com"
+  },
+  "metadata": {
+    "description": "A sample marketplace for testing",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "full-plugin",
+      "source": "./plugins/full-plugin",
+      "description": "A plugin with all component types",
+      "version": "1.2.0",
+      "author": {
+        "name": "Plugin Author"
+      },
+      "category": "development",
+      "keywords": ["testing", "example"],
+      "tags": ["dev"],
+      "license": "MIT"
+    },
+    {
+      "name": "minimal-plugin",
+      "source": "./plugins/minimal-plugin",
+      "description": "A minimal plugin with only metadata"
+    },
+    {
+      "name": "external-plugin",
+      "source": {
+        "source": "github",
+        "repo": "example/external-plugin"
+      },
+      "description": "An external plugin (not scannable locally)",
+      "category": "productivity"
+    }
+  ]
+}
