@@ -74,7 +74,7 @@ permissions:
 
 jobs:
   deploy:
-    uses: giginet/cc-plugin-catalog/.github/workflows/build-pages.yml@main
+    uses: giginet/cc-plugin-catalog/.github/workflows/build-pages.yml@v1
 ```
 
 That's it! Every push to `main` will build your catalog and deploy it to GitHub Pages.
@@ -89,7 +89,7 @@ That's it! Every push to `main` will build your catalog and deploy it to GitHub 
 ```yaml
 jobs:
   deploy:
-    uses: giginet/cc-plugin-catalog/.github/workflows/build-pages.yml@main
+    uses: giginet/cc-plugin-catalog/.github/workflows/build-pages.yml@v1
     with:
       catalog-version: "0.0.1"
       output-dir: "dist"
