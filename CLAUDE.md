@@ -1,33 +1,29 @@
 # cc-plugin-catalog
 
-このプロジェクトはClaude Code Plugin Marketplaceのインデックスページを生成するためのPython Packageです。
+Static site generator for Claude Code Plugin Marketplace repositories.
 
-Marketplaceの仕様：https://code.claude.com/docs/ja/plugin-marketplaces
-オフィシャルプラグインMarketplace: https://github.com/anthropics/claude-plugins-official
+- Spec: https://code.claude.com/docs/en/plugin-marketplaces
+- Official marketplace: https://github.com/anthropics/claude-plugins-official
 
-以下のプロダクトを提供します。
+## Stack
 
-オフィシャルプラグインマーケットのリポジトリを参考に構築してください。
+- Python 3.12, managed with uv
+- CLI: Click
+- Templates: Jinja2
+- Models: Pydantic
+- Markdown: python-markdown
 
-## 静的サイトジェネレーター
+## Commands
 
-Plugin Marketplaceのリポジトリから静的なHTMLを生成します
-
-- 一覧ページ（グリッド上に表示）とプラグインごとのパーマリンク
-- リポジトリ内の`.claude-plugin/marketplace.json`, `plugins/**/plugin.json`を読み込んでメタデータを表示する。
-- pluginsディレクトリのうち、サポートしているツールを表示する
-    - Skill, Hooks, MCP, Subagent, Commands, LSP server
-    - 提供しているSkillやSubagent, Command名、Hookのイベント名なども表示する
-- LICENSE, README.mdが含まれていればそれも表示する（Markdownレンダリング）
-- Light Mode / Dark Modeの切り替え
-
-## GitHub Actions Workflow
-
-各Marketplaceリポジトリが簡単に静的ページを作ってGitHub PagesにデプロイできるようなReusable Workflowを提供します。
+```bash
+uv run pytest tests/ -v      # Tests
+uv run ruff check src/ tests/ # Lint
+uv run ruff format src/ tests/ # Format
+uv run ty check src/          # Type check
+```
 
 ## CI/CD
 
-- GitHub Actions Workflow
-    - pytest
-    - ruff
-    - ty
+- `ci.yml`: pytest, ruff, ty
+- `build-pages.yml`: Reusable workflow for marketplace repos
+- `publish.yml`: PyPI publish on GitHub Release (Trusted Publisher)
