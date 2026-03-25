@@ -106,6 +106,39 @@ jobs:
 
 The `logo` path is relative to the repository root. Simply commit an image file (PNG, SVG, etc.) to your repository and reference it.
 
+### Without the reusable workflow
+
+If you prefer to write your own workflow instead of using the reusable one:
+
+```yaml
+name: Deploy Plugin Catalog
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv tool install cc-plugin-catalog
+      - run: cc-plugin-catalog build . -o _site --base-url "https://example.github.io/my-marketplace" --logo assets/logo.png
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
+```
+
 ## CLI Reference
 
 ```
