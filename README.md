@@ -108,7 +108,7 @@ The `logo` path is relative to the repository root. Simply commit an image file 
 
 ### Without the reusable workflow
 
-If you prefer to write your own workflow instead of using the reusable one:
+If you can't use the reusable workflow (e.g. GitHub Enterprise, custom runners, or additional build steps):
 
 ```yaml
 name: Deploy Plugin Catalog
