@@ -89,7 +89,9 @@ def _build_source_url(
     return None
 
 
-def build_site(repo_path: Path, output_dir: Path) -> None:
+def build_site(
+    repo_path: Path, output_dir: Path, *, base_url: str | None = None
+) -> None:
     """Build the complete static site from a marketplace repository."""
     repo_path = repo_path.resolve()
     output_dir = output_dir.resolve()
@@ -156,4 +158,4 @@ def build_site(repo_path: Path, output_dir: Path) -> None:
         plugins=plugins,
     )
 
-    render_site(marketplace, output_dir)
+    render_site(marketplace, output_dir, base_url=base_url)
