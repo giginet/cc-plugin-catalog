@@ -35,16 +35,47 @@ def _collect_tags(plugins: list[Plugin]) -> list[str]:
     return sorted(tags)
 
 
+_TOOL_TYPES = [
+    {"key": "skills", "label": "Skills", "css_class": "skills"},
+    {"key": "commands", "label": "Commands", "css_class": "commands"},
+    {"key": "agents", "label": "Agents", "css_class": "agents"},
+    {"key": "hooks", "label": "Hooks", "css_class": "hooks"},
+    {"key": "mcp", "label": "MCP", "css_class": "mcp"},
+    {"key": "lsp", "label": "LSP", "css_class": "lsp"},
+]
+
+
+def _collect_tool_types(plugins: list[Plugin]) -> list[dict[str, str]]:
+    present: set[str] = set()
+    for p in plugins:
+        c = p.components
+        if c.skills:
+            present.add("skills")
+        if c.commands:
+            present.add("commands")
+        if c.agents:
+            present.add("agents")
+        if c.hooks:
+            present.add("hooks")
+        if c.mcp_servers:
+            present.add("mcp")
+        if c.lsp_servers:
+            present.add("lsp")
+    return [t for t in _TOOL_TYPES if t["key"] in present]
+
+
 def render_index(marketplace: Marketplace, output_dir: Path) -> None:
     """Render the index page with plugin grid."""
     env = _create_env()
     template = env.get_template("index.html")
     categories = _collect_categories(marketplace.plugins)
     tags = _collect_tags(marketplace.plugins)
+    tool_types = _collect_tool_types(marketplace.plugins)
     html = template.render(
         marketplace=marketplace,
         categories=categories,
         tags=tags,
+        tool_types=tool_types,
     )
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "index.html").write_text(html, encoding="utf-8")

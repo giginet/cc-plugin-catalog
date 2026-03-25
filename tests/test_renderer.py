@@ -85,6 +85,20 @@ class TestRenderIndex:
         assert 'data-filter-value="tool"' in content
         assert 'data-filter-value="ci"' in content
 
+    def test_contains_tool_filter_buttons(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_index(mp, tmp_path)
+        content = (tmp_path / "index.html").read_text()
+        assert 'data-filter-type="tool"' in content
+        assert 'data-filter-value="skills"' in content
+
+    def test_cards_have_data_tools(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_index(mp, tmp_path)
+        content = (tmp_path / "index.html").read_text()
+        assert "data-tools=" in content
+        assert "skills" in content
+
     def test_card_has_full_link(self, tmp_path: Path) -> None:
         mp = _make_marketplace()
         render_index(mp, tmp_path)
