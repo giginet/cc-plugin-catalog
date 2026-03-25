@@ -30,12 +30,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ github.event.release.tag_name }}"
-          # Extract major version (v1.2.3 -> v1, v0.0.1 -> v0)
-          MAJOR="$(echo "$TAG" | grep -oE '^v[0-9]+' || true)"
-          if [ -z "$MAJOR" ]; then
-            echo "Tag '$TAG' does not match vX.Y.Z format, skipping."
+          # Extract major version (v1.2.3 -> v1, 1.2.3 -> v1, v0.0.1 -> v0)
+          VERSION="$(echo "$TAG" | sed 's/^v//')"
+          MAJOR_NUM="$(echo "$VERSION" | cut -d. -f1)"
+          if ! echo "$MAJOR_NUM" | grep -qE '^[0-9]+$'; then
+            echo "Tag '$TAG' does not match a semver format, skipping."
             exit 0
           fi
+          MAJOR="v${MAJOR_NUM}"
           echo "Moving tag $MAJOR to $TAG"
           git tag -f "$MAJOR" "$TAG"
           git push -f origin "$MAJOR"
