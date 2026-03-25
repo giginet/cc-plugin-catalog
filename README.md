@@ -1,12 +1,12 @@
 # cc-plugin-catalog
 
-[![PyPI](https://img.shields.io/pypi/v/cc-plugin-catalog)](https://pypi.org/project/cc-plugin-catalog/)
-[![Python](https://img.shields.io/pypi/pyversions/cc-plugin-catalog)](https://pypi.org/project/cc-plugin-catalog/)
-[![License](https://img.shields.io/github/license/giginet/cc-plugin-catalog)](https://github.com/giginet/cc-plugin-catalog/blob/main/LICENSE)
-[![CI](https://img.shields.io/github/actions/workflow/status/giginet/cc-plugin-catalog/ci.yml?branch=main&label=CI)](https://github.com/giginet/cc-plugin-catalog/actions/workflows/ci.yml)
-[![PyPI Downloads](https://img.shields.io/pypi/dm/cc-plugin-catalog)](https://pypi.org/project/cc-plugin-catalog/)
-[![GitHub Stars](https://img.shields.io/github/stars/giginet/cc-plugin-catalog)](https://github.com/giginet/cc-plugin-catalog)
-[![GitHub Issues](https://img.shields.io/github/issues/giginet/cc-plugin-catalog)](https://github.com/giginet/cc-plugin-catalog/issues)
+[![PyPI](https://img.shields.io/pypi/v/cc-plugin-catalog?style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/cc-plugin-catalog/)
+[![Python](https://img.shields.io/pypi/pyversions/cc-plugin-catalog?style=flat-square&logo=python&logoColor=white)](https://pypi.org/project/cc-plugin-catalog/)
+[![License](https://img.shields.io/github/license/giginet/cc-plugin-catalog?style=flat-square)](https://github.com/giginet/cc-plugin-catalog/blob/main/LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/giginet/cc-plugin-catalog/ci.yml?branch=main&label=CI&style=flat-square&logo=githubactions&logoColor=white)](https://github.com/giginet/cc-plugin-catalog/actions/workflows/ci.yml)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/cc-plugin-catalog?style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/cc-plugin-catalog/)
+[![GitHub Stars](https://img.shields.io/github/stars/giginet/cc-plugin-catalog?style=social)](https://github.com/giginet/cc-plugin-catalog)
+[![GitHub Issues](https://img.shields.io/github/issues/giginet/cc-plugin-catalog?style=social&logo=github)](https://github.com/giginet/cc-plugin-catalog/issues)
 
 Static site generator for [Claude Code Plugin Marketplace](https://code.claude.com/docs/en/plugin-marketplaces) repositories.
 
