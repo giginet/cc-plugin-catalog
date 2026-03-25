@@ -5,6 +5,8 @@ Static site generator for Claude Code Plugin Marketplace repositories.
 - Spec: https://code.claude.com/docs/en/plugin-marketplaces
 - Official marketplace: https://github.com/anthropics/claude-plugins-official
 
+Use the official marketplace repo and docs as reference when developing.
+
 ## Stack
 
 - Python 3.12, managed with uv
