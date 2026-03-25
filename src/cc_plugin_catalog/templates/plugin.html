@@ -59,6 +59,59 @@
     </div>
 </section>
 
+<section class="install-section">
+    <h2>Installation</h2>
+    <div class="install-tabs">
+        <button type="button" class="install-tab active" data-tab="claude-code">Claude Code</button>
+        <button type="button" class="install-tab" data-tab="bash">Bash</button>
+    </div>
+    <div class="install-panel active" data-panel="claude-code">
+        <div class="code-block">
+            <code>/plugin marketplace add {{ marketplace.name }}</code>
+            <button type="button" class="copy-btn" aria-label="Copy to clipboard">Copy</button>
+        </div>
+        <div class="code-block">
+            <code>/plugin install {{ plugin.name }}@{{ marketplace.name }}</code>
+            <button type="button" class="copy-btn" aria-label="Copy to clipboard">Copy</button>
+        </div>
+    </div>
+    <div class="install-panel" data-panel="bash">
+        <div class="code-block">
+            <code>claude plugin add marketplace {{ marketplace.name }}</code>
+            <button type="button" class="copy-btn" aria-label="Copy to clipboard">Copy</button>
+        </div>
+        <div class="code-block">
+            <code>claude plugin install {{ plugin.name }}@{{ marketplace.name }}</code>
+            <button type="button" class="copy-btn" aria-label="Copy to clipboard">Copy</button>
+        </div>
+    </div>
+</section>
+
+<script>
+(function() {
+    var tabs = document.querySelectorAll('.install-tab');
+    var panels = document.querySelectorAll('.install-panel');
+    tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            tabs.forEach(function(t) { t.classList.remove('active'); });
+            panels.forEach(function(p) { p.classList.remove('active'); });
+            tab.classList.add('active');
+            var panel = document.querySelector('[data-panel="' + tab.dataset.tab + '"]');
+            if (panel) panel.classList.add('active');
+        });
+    });
+    document.querySelectorAll('.copy-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var code = this.parentElement.querySelector('code').textContent;
+            navigator.clipboard.writeText(code).then(function() {
+                btn.textContent = 'Copied!';
+                setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+            });
+        });
+    });
+})();
+</script>
+
 {% if plugin.components.skills %}
 <section class="component-section">
     <h2><span class="badge badge-skills">Skills</span></h2>

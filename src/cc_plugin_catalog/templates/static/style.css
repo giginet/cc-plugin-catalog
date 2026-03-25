@@ -503,6 +503,93 @@ a.tag:hover {
     font-size: 0.85rem;
 }
 
+/* === Install Section === */
+.install-section {
+    margin-bottom: 2rem;
+}
+
+.install-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.install-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 0;
+}
+
+.install-tab {
+    background: none;
+    border: none;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.install-tab:hover {
+    color: var(--text);
+}
+
+.install-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+.install-panel {
+    display: none;
+    padding: 1rem 0;
+}
+
+.install-panel.active {
+    display: block;
+}
+
+.code-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.5rem;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.code-block code {
+    font-size: 0.875rem;
+    color: var(--text);
+    background: none;
+    padding: 0;
+    flex: 1;
+    user-select: all;
+}
+
+.copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+    margin-left: 0.75rem;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.copy-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
 /* === README / License === */
 .readme-section,
 .license-section {
