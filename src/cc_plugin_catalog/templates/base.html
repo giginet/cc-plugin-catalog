@@ -4,12 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ marketplace.name }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ marketplace.description or (marketplace.name ~ ' - Plugin Marketplace') }}{% endblock %}">
+    {% if base_url %}
+    <meta property="og:title" content="{% block og_title %}{{ marketplace.name }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ marketplace.description or (marketplace.name ~ ' - Plugin Marketplace') }}{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    {% block og_url %}<meta property="og:url" content="{{ base_url }}/">{% endblock %}
+    {% if logo %}<meta property="og:image" content="{% block og_image %}{{ base_url }}/static/{{ logo }}{% endblock %}">{% endif %}
+    {% endif %}
     <link rel="stylesheet" href="{% block css_path %}static/style.css{% endblock %}">
 </head>
 <body data-theme="light">
     <header class="site-header">
         <div class="header-inner">
-            <a href="{% block home_href %}index.html{% endblock %}" class="header-title">{{ marketplace.name }}</a>
+            <a href="{% block home_href %}index.html{% endblock %}" class="header-title">
+                {% if logo %}<img src="{% block logo_path %}static/{{ logo }}{% endblock %}" alt="" class="header-logo">{% endif %}
+                {{ marketplace.name }}
+            </a>
             <div class="header-actions">
                 {% if marketplace.repository_url %}
                 <a href="{{ marketplace.repository_url }}" class="header-github" target="_blank" rel="noopener" aria-label="GitHub repository">

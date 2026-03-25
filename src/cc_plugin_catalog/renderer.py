@@ -64,7 +64,13 @@ def _collect_tool_types(plugins: list[Plugin]) -> list[dict[str, str]]:
     return [t for t in _TOOL_TYPES if t["key"] in present]
 
 
-def render_index(marketplace: Marketplace, output_dir: Path) -> None:
+def render_index(
+    marketplace: Marketplace,
+    output_dir: Path,
+    *,
+    base_url: str | None = None,
+    logo: str | None = None,
+) -> None:
     """Render the index page with plugin grid."""
     env = _create_env()
     template = env.get_template("index.html")
@@ -76,18 +82,32 @@ def render_index(marketplace: Marketplace, output_dir: Path) -> None:
         categories=categories,
         tags=tags,
         tool_types=tool_types,
+        base_url=base_url or "",
+        logo=logo,
     )
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "index.html").write_text(html, encoding="utf-8")
 
 
 def render_plugin_page(
-    plugin: Plugin, marketplace: Marketplace, output_dir: Path
+    plugin: Plugin,
+    marketplace: Marketplace,
+    output_dir: Path,
+    *,
+    base_url: str | None = None,
+    logo: str | None = None,
 ) -> None:
     """Render an individual plugin detail page."""
     env = _create_env()
     template = env.get_template("plugin.html")
-    html = template.render(plugin=plugin, marketplace=marketplace)
+    page_url = f"{base_url}/plugins/{plugin.name}/" if base_url else ""
+    html = template.render(
+        plugin=plugin,
+        marketplace=marketplace,
+        base_url=base_url or "",
+        page_url=page_url,
+        logo=logo,
+    )
     plugin_dir = output_dir / "plugins" / plugin.name
     plugin_dir.mkdir(parents=True, exist_ok=True)
     (plugin_dir / "index.html").write_text(html, encoding="utf-8")
@@ -124,11 +144,19 @@ def copy_static(output_dir: Path) -> None:
     shutil.copytree(static_src, static_dst)
 
 
-def render_site(marketplace: Marketplace, output_dir: Path) -> None:
+def render_site(
+    marketplace: Marketplace,
+    output_dir: Path,
+    *,
+    base_url: str | None = None,
+    logo: str | None = None,
+) -> None:
     """Render the complete static site."""
-    render_index(marketplace, output_dir)
+    render_index(marketplace, output_dir, base_url=base_url, logo=logo)
     for plugin in marketplace.plugins:
-        render_plugin_page(plugin, marketplace, output_dir)
+        render_plugin_page(
+            plugin, marketplace, output_dir, base_url=base_url, logo=logo
+        )
 
     # Category pages
     cat_map: dict[str, list[Plugin]] = {}

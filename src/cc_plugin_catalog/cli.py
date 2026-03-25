@@ -27,10 +27,22 @@ def main() -> None:
     type=click.Path(path_type=Path),
     help="Output directory for generated site.",
 )
-def build(repo_path: Path, output: Path) -> None:
+@click.option(
+    "--base-url",
+    default="",
+    help="Base URL for OGP meta tags (e.g. https://example.github.io/my-marketplace).",
+)
+@click.option(
+    "--logo",
+    default="",
+    type=click.Path(),
+    help="Path to a logo image to display in the header.",
+)
+def build(repo_path: Path, output: Path, base_url: str, logo: str) -> None:
     """Build a static site from a Plugin Marketplace repository."""
     click.echo(f"Building site from {repo_path} -> {output}")
-    build_site(repo_path, output)
+    logo_path = Path(logo) if logo else None
+    build_site(repo_path, output, base_url=base_url or None, logo=logo_path)
     click.echo(f"Site generated at {output}")
 
 
@@ -55,10 +67,24 @@ def build(repo_path: Path, output: Path) -> None:
     default="localhost",
     help="Host to bind to.",
 )
-def preview(repo_path: Path, output: Path, port: int, host: str) -> None:
+@click.option(
+    "--base-url",
+    default="",
+    help="Base URL for OGP meta tags (e.g. https://example.github.io/my-marketplace).",
+)
+@click.option(
+    "--logo",
+    default="",
+    type=click.Path(),
+    help="Path to a logo image to display in the header.",
+)
+def preview(
+    repo_path: Path, output: Path, port: int, host: str, base_url: str, logo: str
+) -> None:
     """Build and serve the site locally with live preview."""
     click.echo(f"Building site from {repo_path} -> {output}")
-    build_site(repo_path, output)
+    logo_path = Path(logo) if logo else None
+    build_site(repo_path, output, base_url=base_url or None, logo=logo_path)
     click.echo(f"Site generated at {output}")
 
     handler = functools.partial(

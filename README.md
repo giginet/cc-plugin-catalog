@@ -75,25 +75,36 @@ permissions:
 jobs:
   deploy:
     uses: giginet/cc-plugin-catalog/.github/workflows/build-pages.yml@v1
+    # Optional: customize with inputs
+    # with:
+    #   base-url: "https://example.github.io/my-marketplace"  # Enables OGP meta tags
+    #   logo: "assets/logo.png"                                # Header logo image
 ```
 
 That's it! Every push to `main` will build your catalog and deploy it to GitHub Pages.
 
 ### Workflow inputs
 
+All inputs are optional.
+
 | Input | Default | Description |
 |-------|---------|-------------|
 | `catalog-version` | `""` (latest) | `cc-plugin-catalog` version to install |
 | `output-dir` | `"_site"` | Output directory for generated files |
+| `base-url` | `""` | Base URL for OGP meta tags. OGP tags are only generated when this is set. |
+| `logo` | `""` | Path to a logo image in the repository (e.g. `assets/logo.png`) |
 
 ```yaml
+# Example with optional inputs
 jobs:
   deploy:
     uses: giginet/cc-plugin-catalog/.github/workflows/build-pages.yml@v1
     with:
-      catalog-version: "0.0.1"
-      output-dir: "dist"
+      base-url: "https://example.github.io/my-marketplace"
+      logo: "assets/logo.png"
 ```
+
+The `logo` path is relative to the repository root. Simply commit an image file (PNG, SVG, etc.) to your repository and reference it.
 
 ## CLI Reference
 
@@ -108,17 +119,19 @@ Commands:
 ### `build`
 
 ```bash
-cc-plugin-catalog build <REPO_PATH> [-o OUTPUT]
+cc-plugin-catalog build <REPO_PATH> [-o OUTPUT] [--base-url URL] [--logo PATH]
 ```
 
 | Option | Default | Description |
 |--------|---------|-------------|
 | `-o`, `--output` | `_site` | Output directory |
+| `--base-url` | | Base URL for OGP meta tags |
+| `--logo` | | Path to a logo image for the header |
 
 ### `preview`
 
 ```bash
-cc-plugin-catalog preview <REPO_PATH> [-o OUTPUT] [-p PORT] [--host HOST]
+cc-plugin-catalog preview <REPO_PATH> [-o OUTPUT] [-p PORT] [--host HOST] [--base-url URL] [--logo PATH]
 ```
 
 | Option | Default | Description |
@@ -126,6 +139,8 @@ cc-plugin-catalog preview <REPO_PATH> [-o OUTPUT] [-p PORT] [--host HOST]
 | `-o`, `--output` | `_site` | Output directory |
 | `-p`, `--port` | `8000` | Port to serve on |
 | `--host` | `localhost` | Host to bind to |
+| `--base-url` | | Base URL for OGP meta tags |
+| `--logo` | | Path to a logo image for the header |
 
 ## Supported Plugin Components
 

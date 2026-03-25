@@ -132,6 +132,110 @@ class TestRenderPluginPage:
         assert "<strong>README</strong>" in content
         assert "&lt;strong&gt;" not in content
 
+    def test_install_commands(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_plugin_page(mp.plugins[0], mp, tmp_path)
+        content = (tmp_path / "plugins" / "plugin-a" / "index.html").read_text()
+        assert "install-section" in content
+        assert "/plugin install plugin-a@test-marketplace" in content
+        assert "claude plugin install plugin-a@test-marketplace" in content
+        assert "install-tab" in content
+        assert "copy-btn" in content
+
+    def test_install_commands_tab_switch(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_plugin_page(mp.plugins[0], mp, tmp_path)
+        content = (tmp_path / "plugins" / "plugin-a" / "index.html").read_text()
+        assert 'data-tab="claude-code"' in content
+        assert 'data-tab="bash"' in content
+        assert 'data-panel="claude-code"' in content
+        assert 'data-panel="bash"' in content
+
+    def test_category_links_to_filtered_index(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_plugin_page(mp.plugins[0], mp, tmp_path)
+        content = (tmp_path / "plugins" / "plugin-a" / "index.html").read_text()
+        assert "../../index.html?category=dev" in content
+
+    def test_tag_links_to_filtered_index(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        mp.plugins[0].tags = ["tool"]
+        render_plugin_page(mp.plugins[0], mp, tmp_path)
+        content = (tmp_path / "plugins" / "plugin-a" / "index.html").read_text()
+        assert "../../index.html?tag=tool" in content
+
+
+class TestOGP:
+    def test_ogp_included_with_base_url(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_index(mp, tmp_path, base_url="https://example.com")
+        content = (tmp_path / "index.html").read_text()
+        assert "og:title" in content
+        assert "og:description" in content
+        assert "og:url" in content
+        assert "https://example.com/" in content
+
+    def test_ogp_excluded_without_base_url(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_index(mp, tmp_path)
+        content = (tmp_path / "index.html").read_text()
+        assert "og:title" not in content
+        assert "og:url" not in content
+
+    def test_plugin_page_ogp(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_plugin_page(
+            mp.plugins[0],
+            mp,
+            tmp_path,
+            base_url="https://example.com",
+        )
+        content = (tmp_path / "plugins" / "plugin-a" / "index.html").read_text()
+        assert "og:title" in content
+        assert "plugin-a - test-marketplace" in content
+        assert "https://example.com/plugins/plugin-a/" in content
+
+    def test_plugin_page_ogp_excluded_without_base_url(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_plugin_page(mp.plugins[0], mp, tmp_path)
+        content = (tmp_path / "plugins" / "plugin-a" / "index.html").read_text()
+        assert "og:title" not in content
+
+    def test_ogp_image_with_logo(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_index(mp, tmp_path, base_url="https://example.com", logo="logo.png")
+        content = (tmp_path / "index.html").read_text()
+        assert "og:image" in content
+        assert "https://example.com/static/logo.png" in content
+
+    def test_ogp_no_image_without_logo(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_index(mp, tmp_path, base_url="https://example.com")
+        content = (tmp_path / "index.html").read_text()
+        assert "og:image" not in content
+
+
+class TestLogo:
+    def test_logo_in_header(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_index(mp, tmp_path, logo="logo.png")
+        content = (tmp_path / "index.html").read_text()
+        assert "header-logo" in content
+        assert "static/logo.png" in content
+
+    def test_no_logo_in_header(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_index(mp, tmp_path)
+        content = (tmp_path / "index.html").read_text()
+        assert "header-logo" not in content
+
+    def test_plugin_page_logo(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_plugin_page(mp.plugins[0], mp, tmp_path, logo="logo.png")
+        content = (tmp_path / "plugins" / "plugin-a" / "index.html").read_text()
+        assert "header-logo" in content
+        assert "../../static/logo.png" in content
+
 
 class TestRenderCategoryPage:
     def test_creates_category_page(self, tmp_path: Path) -> None:

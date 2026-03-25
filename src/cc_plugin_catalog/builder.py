@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -89,7 +90,13 @@ def _build_source_url(
     return None
 
 
-def build_site(repo_path: Path, output_dir: Path) -> None:
+def build_site(
+    repo_path: Path,
+    output_dir: Path,
+    *,
+    base_url: str | None = None,
+    logo: Path | None = None,
+) -> None:
     """Build the complete static site from a marketplace repository."""
     repo_path = repo_path.resolve()
     output_dir = output_dir.resolve()
@@ -156,4 +163,12 @@ def build_site(repo_path: Path, output_dir: Path) -> None:
         plugins=plugins,
     )
 
-    render_site(marketplace, output_dir)
+    logo_filename: str | None = None
+    if logo and logo.is_file():
+        logo_filename = logo.name
+
+    render_site(marketplace, output_dir, base_url=base_url, logo=logo_filename)
+
+    # Copy logo after render_site (which overwrites static/)
+    if logo_filename and logo and logo.is_file():
+        shutil.copy2(logo, output_dir / "static" / logo_filename)
