@@ -35,7 +35,7 @@ jobs:
         run: pip install --quiet cc-plugin-catalog${{ inputs.catalog-version && format('=={0}', inputs.catalog-version) || '' }}
       - name: Build site
         run: cc-plugin-catalog build . -o ${{ inputs.output-dir }}${{ inputs.base-url && format(' --base-url {0}', inputs.base-url) || '' }}${{ inputs.logo && format(' --logo {0}', inputs.logo) || '' }}
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: ${{ inputs.output-dir }}
       - id: deployment
