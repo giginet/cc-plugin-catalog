@@ -125,4 +125,5 @@ class Marketplace(BaseModel):
     description: str | None = None
     owner: Owner
     repository_url: str | None = None
+    repository_id: str | None = None
     plugins: list[Plugin] = []

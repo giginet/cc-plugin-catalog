@@ -90,12 +90,42 @@ def _build_source_url(
     return None
 
 
+def _extract_repo_id(url: str) -> str | None:
+    """Extract owner/repo from a GitHub URL."""
+    m = re.match(r"https?://github\.com/([^/]+/[^/]+?)(?:\.git)?/?$", url)
+    if m:
+        return m.group(1)
+    return None
+
+
+def _resolve_repository_id(
+    default_repository: str | None,
+    repo_base_url: str | None,
+) -> str | None:
+    """Resolve the marketplace repository identifier for install commands.
+
+    Priority:
+    1. Explicit --default-repository value
+    2. owner/repo extracted from git remote (GitHub)
+    3. Full git remote URL (non-GitHub)
+    """
+    if default_repository:
+        return default_repository
+    if repo_base_url:
+        repo_id = _extract_repo_id(repo_base_url)
+        if repo_id:
+            return repo_id
+        return repo_base_url
+    return None
+
+
 def build_site(
     repo_path: Path,
     output_dir: Path,
     *,
     base_url: str | None = None,
     logo: Path | None = None,
+    default_repository: str | None = None,
 ) -> None:
     """Build the complete static site from a marketplace repository."""
     repo_path = repo_path.resolve()
@@ -155,11 +185,14 @@ def build_site(
 
         plugins.append(plugin)
 
+    repository_id = _resolve_repository_id(default_repository, repo_base_url)
+
     marketplace = Marketplace(
         name=config.name,
         description=config.metadata.description if config.metadata else None,
         owner=config.owner,
         repository_url=repo_base_url,
+        repository_id=repository_id,
         plugins=plugins,
     )
 
