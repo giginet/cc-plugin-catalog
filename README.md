@@ -95,6 +95,7 @@ All inputs are optional.
 | `output-dir` | `"_site"` | Output directory for generated files |
 | `base-url` | `""` | Base URL for OGP meta tags. OGP tags are only generated when this is set. |
 | `logo` | `""` | Path to a logo image in the repository (e.g. `assets/logo.png`) |
+| `default-repository` | `""` | Marketplace repo identifier for install commands (e.g. `owner/repo`). Auto-detected from git remote if not set. |
 
 ```yaml
 # Example with optional inputs
