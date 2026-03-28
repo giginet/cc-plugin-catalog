@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import yaml
+
 from cc_plugin_catalog.markdown_utils import render_markdown
 from cc_plugin_catalog.models import (
     AgentInfo,
@@ -18,9 +20,11 @@ from cc_plugin_catalog.models import (
 
 
 def _parse_frontmatter(text: str) -> tuple[dict, str]:
-    """Parse YAML-like frontmatter from a markdown file.
+    """Parse YAML frontmatter from a markdown file.
 
     Returns a tuple of (metadata dict, body text).
+    Uses PyYAML for proper parsing of multi-line values and complex YAML.
+    All values are converted to strings for display purposes.
     """
     if not text.startswith("---"):
         return {}, text
@@ -35,11 +39,19 @@ def _parse_frontmatter(text: str) -> tuple[dict, str]:
     if end_index is None:
         return {}, text
 
+    yaml_text = "\n".join(lines[1:end_index])
+    try:
+        raw = yaml.safe_load(yaml_text)
+    except yaml.YAMLError:
+        raw = None
+
     metadata: dict[str, str] = {}
-    for line in lines[1:end_index]:
-        if ":" in line:
-            key, _, value = line.partition(":")
-            metadata[key.strip()] = value.strip()
+    if isinstance(raw, dict):
+        for key, value in raw.items():
+            if isinstance(value, list):
+                metadata[str(key)] = ", ".join(str(v) for v in value)
+            else:
+                metadata[str(key)] = str(value) if value is not None else ""
 
     body = "\n".join(lines[end_index + 1 :]).strip()
     return metadata, body
