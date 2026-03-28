@@ -140,7 +140,9 @@ def build_site(
         plugin_path = _resolve_plugin_path(repo_path, entry.source)
         is_local = plugin_path is not None and plugin_path.is_dir()
 
-        source_url = _build_source_url(entry.source, repo_base_url, branch)
+        source_url = entry.repository or _build_source_url(
+            entry.source, repo_base_url, branch
+        )
 
         # Start with marketplace entry metadata
         plugin = Plugin(
@@ -167,7 +169,9 @@ def build_site(
                 plugin.version = manifest.version or plugin.version
                 plugin.author = manifest.author or plugin.author
                 plugin.homepage = manifest.homepage or plugin.homepage
-                plugin.repository = manifest.repository or plugin.repository
+                if manifest.repository:
+                    plugin.repository = manifest.repository
+                    plugin.source_url = manifest.repository
                 plugin.license_id = manifest.license or plugin.license_id
                 if manifest.keywords:
                     plugin.keywords = manifest.keywords
