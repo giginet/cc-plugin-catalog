@@ -27,6 +27,11 @@ class TestScanSkills:
         expected = "Review code for best practices and potential issues"
         assert code_review.description == expected
         assert code_review.source_path == "skills/code-review/SKILL.md"
+        assert "description" in code_review.frontmatter
+        assert "disable-model-invocation" in code_review.frontmatter
+        assert code_review.frontmatter["disable-model-invocation"] == "true"
+        assert code_review.body_html is not None
+        assert "Code organization" in code_review.body_html
 
     def test_minimal_plugin(self, minimal_plugin_path: Path) -> None:
         assert scan_skills(minimal_plugin_path) == []
@@ -38,6 +43,9 @@ class TestScanCommands:
         assert len(commands) == 1
         assert commands[0].name == "greet"
         assert commands[0].description == "Greet the user with a friendly message"
+        assert "description" in commands[0].frontmatter
+        assert commands[0].body_html is not None
+        assert "warmly" in commands[0].body_html
 
     def test_minimal_plugin(self, minimal_plugin_path: Path) -> None:
         assert scan_commands(minimal_plugin_path) == []
@@ -50,6 +58,10 @@ class TestScanAgents:
         assert agents[0].name == "security-reviewer"
         assert agents[0].description == "Reviews code for security vulnerabilities"
         assert agents[0].model == "sonnet"
+        assert "name" in agents[0].frontmatter
+        assert "model" in agents[0].frontmatter
+        assert agents[0].body_html is not None
+        assert "security reviewer" in agents[0].body_html
 
     def test_minimal_plugin(self, minimal_plugin_path: Path) -> None:
         assert scan_agents(minimal_plugin_path) == []

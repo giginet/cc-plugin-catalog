@@ -3,7 +3,9 @@
 from pathlib import Path
 
 from cc_plugin_catalog.models import (
+    AgentInfo,
     Author,
+    CommandInfo,
     Marketplace,
     Owner,
     Plugin,
@@ -163,6 +165,95 @@ class TestRenderPluginPage:
         render_plugin_page(mp.plugins[0], mp, tmp_path)
         content = (tmp_path / "plugins" / "plugin-a" / "index.html").read_text()
         assert "../../index.html?tag=tool" in content
+
+    def test_detail_row_with_frontmatter_and_body(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        mp.plugins[0].components.skills = [
+            SkillInfo(
+                name="review",
+                description="Review code",
+                frontmatter={
+                    "description": "Review code",
+                    "disable-model-invocation": "true",
+                },
+                body_html="<p>Review the code carefully.</p>",
+            )
+        ]
+        render_plugin_page(mp.plugins[0], mp, tmp_path)
+        content = (tmp_path / "plugins" / "plugin-a" / "index.html").read_text()
+        assert "detail-toggle" in content
+        assert "detail-row" in content
+        assert "frontmatter-table" in content
+        assert "disable-model-invocation" in content
+        assert "detail-content" in content
+        assert "Review the code carefully." in content
+
+    def test_detail_row_body_html_unescaped(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        mp.plugins[0].components.skills = [
+            SkillInfo(
+                name="review",
+                description="Review code",
+                frontmatter={"description": "Review code"},
+                body_html="<p><strong>Bold</strong> text</p>",
+            )
+        ]
+        render_plugin_page(mp.plugins[0], mp, tmp_path)
+        content = (tmp_path / "plugins" / "plugin-a" / "index.html").read_text()
+        assert "<strong>Bold</strong>" in content
+        assert "&lt;strong&gt;" not in content
+
+    def test_no_detail_row_without_extra_content(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        mp.plugins[0].components.skills = [
+            SkillInfo(
+                name="simple",
+                description="Simple skill",
+                frontmatter={"description": "Simple skill"},
+            )
+        ]
+        render_plugin_page(mp.plugins[0], mp, tmp_path)
+        content = (tmp_path / "plugins" / "plugin-a" / "index.html").read_text()
+        assert 'class="detail-toggle"' not in content
+        assert 'class="detail-row"' not in content
+
+    def test_detail_row_for_commands(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        mp.plugins[0].components.commands = [
+            CommandInfo(
+                name="greet",
+                description="Greet user",
+                frontmatter={"description": "Greet user"},
+                body_html="<p>Say hello warmly.</p>",
+            )
+        ]
+        render_plugin_page(mp.plugins[0], mp, tmp_path)
+        content = (tmp_path / "plugins" / "plugin-a" / "index.html").read_text()
+        assert "detail-row" in content
+        assert "Say hello warmly." in content
+
+    def test_detail_row_for_agents(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        mp.plugins[0].components.agents = [
+            AgentInfo(
+                name="reviewer",
+                description="Reviews code",
+                model="sonnet",
+                frontmatter={
+                    "name": "reviewer",
+                    "description": "Reviews code",
+                    "model": "sonnet",
+                    "color": "red",
+                },
+                body_html="<p>You are a code reviewer.</p>",
+            )
+        ]
+        render_plugin_page(mp.plugins[0], mp, tmp_path)
+        content = (tmp_path / "plugins" / "plugin-a" / "index.html").read_text()
+        assert "detail-row" in content
+        assert "frontmatter-table" in content
+        assert "color" in content
+        assert "You are a code reviewer." in content
 
 
 class TestOGP:

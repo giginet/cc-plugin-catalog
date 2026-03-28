@@ -28,18 +28,24 @@ class SkillInfo(BaseModel):
     name: str
     description: str | None = None
     source_path: str = ""
+    frontmatter: dict[str, str] = {}
+    body_html: str | None = None
 
 
 class CommandInfo(BaseModel):
     name: str
     description: str | None = None
     source_path: str = ""
+    frontmatter: dict[str, str] = {}
+    body_html: str | None = None
 
 
 class AgentInfo(BaseModel):
     name: str
     description: str | None = None
     model: str | None = None
+    frontmatter: dict[str, str] = {}
+    body_html: str | None = None
 
 
 class HookEntry(BaseModel):
