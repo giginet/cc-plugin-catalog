@@ -140,9 +140,8 @@ def build_site(
         plugin_path = _resolve_plugin_path(repo_path, entry.source)
         is_local = plugin_path is not None and plugin_path.is_dir()
 
-        source_url = (
-            entry.repository
-            or _build_source_url(entry.source, repo_base_url, branch)
+        source_url = entry.repository or _build_source_url(
+            entry.source, repo_base_url, branch
         )
 
         # Start with marketplace entry metadata
