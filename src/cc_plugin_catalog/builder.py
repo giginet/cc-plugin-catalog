@@ -38,9 +38,10 @@ def _get_repo_base_url(repo_path: Path) -> str | None:
     except (subprocess.CalledProcessError, FileNotFoundError):
         return None
 
-    # Convert git@ or https .git URLs to browse URL
+    # Normalize remote URL
     url = re.sub(r"\.git$", "", url)
-    url = re.sub(r"^git@([^:]+):", r"https://\1/", url)
+    # ssh://git@host/path → git@host:path
+    url = re.sub(r"^ssh://git@([^/]+)/", r"git@\1:", url)
     return url
 
 
@@ -95,8 +96,13 @@ def _build_source_url(
 
 
 def _extract_repo_id(url: str) -> str | None:
-    """Extract owner/repo from a GitHub URL."""
+    """Extract owner/repo from a github.com URL (HTTPS or SSH)."""
+    # https://github.com/owner/repo
     m = re.match(r"https?://github\.com/([^/]+/[^/]+?)(?:\.git)?/?$", url)
+    if m:
+        return m.group(1)
+    # git@github.com:owner/repo
+    m = re.match(r"^git@github\.com:([^/]+/[^/]+?)$", url)
     if m:
         return m.group(1)
     return None

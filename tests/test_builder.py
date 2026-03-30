@@ -111,8 +111,8 @@ class TestExtractRepoId:
     def test_github_enterprise_https_url_returns_none(self) -> None:
         assert _extract_repo_id("https://my-git-server.com/owner/repo") is None
 
-    def test_ssh_url_returns_none(self) -> None:
-        assert _extract_repo_id("git@github.com:owner/repo") is None
+    def test_github_ssh_url_extracts_owner_repo(self) -> None:
+        assert _extract_repo_id("git@github.com:owner/repo") == "owner/repo"
 
     def test_github_enterprise_ssh_url_returns_none(self) -> None:
         assert _extract_repo_id("git@my-git-server.com:owner/repo") is None
@@ -130,17 +130,17 @@ class TestGetRepoBaseUrl:
 
     def test_github_ssh_url(self, tmp_path: Path) -> None:
         with self._mock_git_remote("git@github.com:owner/repo.git"):
-            assert _get_repo_base_url(tmp_path) == "https://github.com/owner/repo"
+            assert _get_repo_base_url(tmp_path) == "git@github.com:owner/repo"
 
     def test_github_https_url(self, tmp_path: Path) -> None:
         with self._mock_git_remote("https://github.com/owner/repo.git"):
             assert _get_repo_base_url(tmp_path) == "https://github.com/owner/repo"
 
     def test_github_enterprise_ssh_url(self, tmp_path: Path) -> None:
-        """GHE SSH URLs are converted to HTTPS browse URLs."""
+        """GHE git@ SSH URLs are kept as-is (not converted to HTTPS)."""
         with self._mock_git_remote("git@my-git-server.com:owner/repo.git"):
             result = _get_repo_base_url(tmp_path)
-            assert result == "https://my-git-server.com/owner/repo"
+            assert result == "git@my-git-server.com:owner/repo"
 
     def test_github_enterprise_https_url(self, tmp_path: Path) -> None:
         with self._mock_git_remote("https://my-git-server.com/owner/repo.git"):
@@ -151,6 +151,18 @@ class TestGetRepoBaseUrl:
         with self._mock_git_remote("https://my-git-server.com/owner/repo"):
             result = _get_repo_base_url(tmp_path)
             assert result == "https://my-git-server.com/owner/repo"
+
+    def test_github_enterprise_ssh_protocol_url(self, tmp_path: Path) -> None:
+        """ssh://git@host/path format is normalized to git@host:path."""
+        with self._mock_git_remote("ssh://git@my-ghe-server/owner/repo.git"):
+            result = _get_repo_base_url(tmp_path)
+            assert result == "git@my-ghe-server:owner/repo"
+
+    def test_github_ssh_protocol_url(self, tmp_path: Path) -> None:
+        """ssh://git@github.com/path is normalized to git@github.com:path."""
+        with self._mock_git_remote("ssh://git@github.com/owner/repo.git"):
+            result = _get_repo_base_url(tmp_path)
+            assert result == "git@github.com:owner/repo"
 
 
 class TestResolveRepositoryId:
@@ -193,6 +205,11 @@ class TestResolveRepositoryId:
 
     def test_empty_default_repository_no_remote_returns_none(self) -> None:
         assert _resolve_repository_id("", None) is None
+
+    def test_github_enterprise_ssh_uses_git_url(self) -> None:
+        """GHE git@ URL is used as-is for repository_id."""
+        result = _resolve_repository_id(None, "git@my-ghe-server:owner/repo")
+        assert result == "git@my-ghe-server:owner/repo"
 
 
 class TestBuildSiteRepositoryId:
