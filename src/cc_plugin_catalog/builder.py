@@ -42,8 +42,6 @@ def _get_repo_base_url(repo_path: Path) -> str | None:
     url = re.sub(r"\.git$", "", url)
     # ssh://git@host/path → git@host:path
     url = re.sub(r"^ssh://git@([^/]+)/", r"git@\1:", url)
-    # git@github.com:owner/repo → https://github.com/owner/repo
-    url = re.sub(r"^git@github\.com:", "https://github.com/", url)
     return url
 
 
@@ -98,8 +96,13 @@ def _build_source_url(
 
 
 def _extract_repo_id(url: str) -> str | None:
-    """Extract owner/repo from a GitHub URL."""
+    """Extract owner/repo from a github.com URL (HTTPS or SSH)."""
+    # https://github.com/owner/repo
     m = re.match(r"https?://github\.com/([^/]+/[^/]+?)(?:\.git)?/?$", url)
+    if m:
+        return m.group(1)
+    # git@github.com:owner/repo
+    m = re.match(r"^git@github\.com:([^/]+/[^/]+?)$", url)
     if m:
         return m.group(1)
     return None
