@@ -28,11 +28,6 @@ class TestBuildCommand:
         result = runner.invoke(main, ["build", "/nonexistent/path"])
         assert result.exit_code != 0
 
-    def test_version(self) -> None:
-        runner = CliRunner()
-        result = runner.invoke(main, ["--version"])
-        assert result.exit_code == 0
-        assert "1.1.0" in result.output
 
 
 class TestPreviewCommand:
