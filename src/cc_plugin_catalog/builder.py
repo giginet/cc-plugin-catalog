@@ -7,6 +7,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import click
+
 from .markdown_utils import render_markdown
 from .models import Marketplace, Plugin
 from .parser import parse_marketplace, parse_plugin_manifest
@@ -36,7 +38,7 @@ def _get_repo_base_url(repo_path: Path) -> str | None:
 
     # Convert git@ or https .git URLs to browse URL
     url = re.sub(r"\.git$", "", url)
-    url = re.sub(r"^git@github\.com:", "https://github.com/", url)
+    url = re.sub(r"^git@([^:]+):", r"https://\1/", url)
     return url
 
 
@@ -105,17 +107,16 @@ def _resolve_repository_id(
     """Resolve the marketplace repository identifier for install commands.
 
     Priority:
-    1. Explicit --default-repository value
-    2. owner/repo extracted from git remote (GitHub)
-    3. Full git remote URL (non-GitHub)
+    1. Auto-detected from git remote (owner/repo for GitHub, full URL otherwise)
+    2. Explicit --default-repository fallback
     """
-    if default_repository:
-        return default_repository
     if repo_base_url:
         repo_id = _extract_repo_id(repo_base_url)
         if repo_id:
             return repo_id
         return repo_base_url
+    if default_repository:
+        return default_repository
     return None
 
 
@@ -186,6 +187,11 @@ def build_site(
         plugins.append(plugin)
 
     repository_id = _resolve_repository_id(default_repository, repo_base_url)
+    if repository_id is None:
+        raise click.UsageError(
+            "Could not detect repository identifier from git remote. "
+            "Please specify --default-repository."
+        )
 
     marketplace = Marketplace(
         name=config.name,
