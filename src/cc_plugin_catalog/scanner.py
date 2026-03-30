@@ -5,6 +5,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import yaml
+
+from cc_plugin_catalog.markdown_utils import render_markdown
 from cc_plugin_catalog.models import (
     AgentInfo,
     CommandInfo,
@@ -17,9 +20,11 @@ from cc_plugin_catalog.models import (
 
 
 def _parse_frontmatter(text: str) -> tuple[dict, str]:
-    """Parse YAML-like frontmatter from a markdown file.
+    """Parse YAML frontmatter from a markdown file.
 
     Returns a tuple of (metadata dict, body text).
+    Uses PyYAML for proper parsing of multi-line values and complex YAML.
+    All values are converted to strings for display purposes.
     """
     if not text.startswith("---"):
         return {}, text
@@ -34,11 +39,19 @@ def _parse_frontmatter(text: str) -> tuple[dict, str]:
     if end_index is None:
         return {}, text
 
+    yaml_text = "\n".join(lines[1:end_index])
+    try:
+        raw = yaml.safe_load(yaml_text)
+    except yaml.YAMLError:
+        raw = None
+
     metadata: dict[str, str] = {}
-    for line in lines[1:end_index]:
-        if ":" in line:
-            key, _, value = line.partition(":")
-            metadata[key.strip()] = value.strip()
+    if isinstance(raw, dict):
+        for key, value in raw.items():
+            if isinstance(value, list):
+                metadata[str(key)] = ", ".join(str(v) for v in value)
+            else:
+                metadata[str(key)] = str(value) if value is not None else ""
 
     body = "\n".join(lines[end_index + 1 :]).strip()
     return metadata, body
@@ -54,12 +67,14 @@ def scan_skills(plugin_path: Path) -> list[SkillInfo]:
     for skill_dir in sorted(skills_dir.iterdir()):
         skill_file = skill_dir / "SKILL.md"
         if skill_dir.is_dir() and skill_file.exists():
-            meta, _ = _parse_frontmatter(skill_file.read_text())
+            meta, body = _parse_frontmatter(skill_file.read_text())
             results.append(
                 SkillInfo(
                     name=skill_dir.name,
                     description=meta.get("description"),
                     source_path=str(skill_file.relative_to(plugin_path)),
+                    frontmatter=meta,
+                    body_html=render_markdown(body) if body else None,
                 )
             )
     return results
@@ -73,12 +88,14 @@ def scan_commands(plugin_path: Path) -> list[CommandInfo]:
 
     results: list[CommandInfo] = []
     for cmd_file in sorted(commands_dir.glob("*.md")):
-        meta, _ = _parse_frontmatter(cmd_file.read_text())
+        meta, body = _parse_frontmatter(cmd_file.read_text())
         results.append(
             CommandInfo(
                 name=cmd_file.stem,
                 description=meta.get("description"),
                 source_path=str(cmd_file.relative_to(plugin_path)),
+                frontmatter=meta,
+                body_html=render_markdown(body) if body else None,
             )
         )
     return results
@@ -92,12 +109,14 @@ def scan_agents(plugin_path: Path) -> list[AgentInfo]:
 
     results: list[AgentInfo] = []
     for agent_file in sorted(agents_dir.glob("*.md")):
-        meta, _ = _parse_frontmatter(agent_file.read_text())
+        meta, body = _parse_frontmatter(agent_file.read_text())
         results.append(
             AgentInfo(
                 name=meta.get("name", agent_file.stem),
                 description=meta.get("description"),
                 model=meta.get("model"),
+                frontmatter=meta,
+                body_html=render_markdown(body) if body else None,
             )
         )
     return results

@@ -489,6 +489,7 @@ a.tag:hover {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.9rem;
+    table-layout: fixed;
 }
 
 .component-table th,
@@ -509,6 +510,105 @@ a.tag:hover {
     padding: 0.15rem 0.4rem;
     border-radius: 4px;
     font-size: 0.85rem;
+}
+
+.component-table td,
+.component-table th {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.component-table th:first-child,
+.component-table td:first-child {
+    width: 15%;
+}
+
+/* === Expandable Component Rows === */
+.detail-col {
+    width: 100px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.detail-toggle {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--accent);
+    padding: 0.3rem 0;
+    width: 5.5rem;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    background: none;
+    user-select: none;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+
+.detail-toggle:hover {
+    background: var(--accent);
+    color: #ffffff;
+}
+
+.detail-row {
+    display: none;
+}
+
+.detail-row.detail-visible {
+    display: table-row;
+}
+
+.detail-row > td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.detail-content {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.frontmatter-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.frontmatter-table th,
+.frontmatter-table td {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+}
+
+.frontmatter-table th {
+    text-align: right;
+    color: var(--text-secondary);
+    font-weight: 600;
+    white-space: nowrap;
+    background: var(--bg);
+    width: 1%;
+}
+
+.frontmatter-table td {
+    background: var(--bg-card);
+}
+
+.body-section {
+    border-top: 1px solid var(--border);
+    padding-top: 0.75rem;
+}
+
+.body-section .markdown-content {
+    font-size: 0.9rem;
 }
 
 /* === Install Section === */

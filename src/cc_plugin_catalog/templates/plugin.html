@@ -119,19 +119,52 @@
 })();
 </script>
 
+{% macro detail_cell(item, colspan) %}
+<tr class="detail-row">
+    <td colspan="{{ colspan }}">
+        <div class="detail-content">
+            {% set extra_keys = [] %}
+            {% for key in item.frontmatter %}
+                {% if key != 'description' %}
+                    {% if extra_keys.append(key) %}{% endif %}
+                {% endif %}
+            {% endfor %}
+            {% if extra_keys %}
+            <table class="frontmatter-table">
+                {% for key in extra_keys %}
+                <tr><th>{{ key }}</th><td>{{ item.frontmatter[key] }}</td></tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+            {% if item.body_html %}
+            <div class="body-section">
+                <div class="markdown-content">{{ item.body_html | safe }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </td>
+</tr>
+{% endmacro %}
+
+{% macro has_detail(item) %}{% set extra = item.frontmatter.keys() | reject('equalto', 'description') | list %}{% if extra or item.body_html %}1{% endif %}{% endmacro %}
+
 {% if plugin.components.skills %}
 <section class="component-section">
     <h2><span class="badge badge-skills">Skills</span></h2>
     <table class="component-table">
         <thead>
-            <tr><th>Name</th><th>Description</th></tr>
+            <tr><th>Name</th><th>Description</th><th class="detail-col"></th></tr>
         </thead>
         <tbody>
             {% for skill in plugin.components.skills %}
             <tr>
                 <td><code>{{ skill.name }}</code></td>
                 <td>{{ skill.description or "" }}</td>
+                <td class="detail-col">{% if has_detail(skill) | trim %}<button type="button" class="detail-toggle">Show Detail</button>{% endif %}</td>
             </tr>
+            {% if has_detail(skill) | trim %}
+            {{ detail_cell(skill, 3) }}
+            {% endif %}
             {% endfor %}
         </tbody>
     </table>
@@ -143,14 +176,18 @@
     <h2><span class="badge badge-commands">Commands</span></h2>
     <table class="component-table">
         <thead>
-            <tr><th>Name</th><th>Description</th></tr>
+            <tr><th>Name</th><th>Description</th><th class="detail-col"></th></tr>
         </thead>
         <tbody>
             {% for cmd in plugin.components.commands %}
             <tr>
                 <td><code>{{ cmd.name }}</code></td>
                 <td>{{ cmd.description or "" }}</td>
+                <td class="detail-col">{% if has_detail(cmd) | trim %}<button type="button" class="detail-toggle">Show Detail</button>{% endif %}</td>
             </tr>
+            {% if has_detail(cmd) | trim %}
+            {{ detail_cell(cmd, 3) }}
+            {% endif %}
             {% endfor %}
         </tbody>
     </table>
@@ -162,7 +199,7 @@
     <h2><span class="badge badge-agents">Agents</span></h2>
     <table class="component-table">
         <thead>
-            <tr><th>Name</th><th>Description</th><th>Model</th></tr>
+            <tr><th>Name</th><th>Description</th><th>Model</th><th class="detail-col"></th></tr>
         </thead>
         <tbody>
             {% for agent in plugin.components.agents %}
@@ -170,7 +207,11 @@
                 <td><code>{{ agent.name }}</code></td>
                 <td>{{ agent.description or "" }}</td>
                 <td>{{ agent.model or "" }}</td>
+                <td class="detail-col">{% if has_detail(agent) | trim %}<button type="button" class="detail-toggle">Show Detail</button>{% endif %}</td>
             </tr>
+            {% if has_detail(agent) | trim %}
+            {{ detail_cell(agent, 4) }}
+            {% endif %}
             {% endfor %}
         </tbody>
     </table>
@@ -250,4 +291,17 @@
     <pre class="license-text">{{ plugin.license_text }}</pre>
 </section>
 {% endif %}
+
+<script>
+document.querySelectorAll('.detail-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var row = this.closest('tr');
+        var detail = row.nextElementSibling;
+        if (detail && detail.classList.contains('detail-row')) {
+            var visible = detail.classList.toggle('detail-visible');
+            this.textContent = visible ? 'Hide Detail' : 'Show Detail';
+        }
+    });
+});
+</script>
 {% endblock %}

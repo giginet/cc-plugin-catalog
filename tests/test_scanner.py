@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from cc_plugin_catalog.scanner import (
+    _parse_frontmatter,
     read_license,
     read_readme,
     scan_agents,
@@ -27,6 +28,11 @@ class TestScanSkills:
         expected = "Review code for best practices and potential issues"
         assert code_review.description == expected
         assert code_review.source_path == "skills/code-review/SKILL.md"
+        assert "description" in code_review.frontmatter
+        assert "disable-model-invocation" in code_review.frontmatter
+        assert code_review.frontmatter["disable-model-invocation"] == "True"
+        assert code_review.body_html is not None
+        assert "Code organization" in code_review.body_html
 
     def test_minimal_plugin(self, minimal_plugin_path: Path) -> None:
         assert scan_skills(minimal_plugin_path) == []
@@ -38,6 +44,9 @@ class TestScanCommands:
         assert len(commands) == 1
         assert commands[0].name == "greet"
         assert commands[0].description == "Greet the user with a friendly message"
+        assert "description" in commands[0].frontmatter
+        assert commands[0].body_html is not None
+        assert "warmly" in commands[0].body_html
 
     def test_minimal_plugin(self, minimal_plugin_path: Path) -> None:
         assert scan_commands(minimal_plugin_path) == []
@@ -50,6 +59,10 @@ class TestScanAgents:
         assert agents[0].name == "security-reviewer"
         assert agents[0].description == "Reviews code for security vulnerabilities"
         assert agents[0].model == "sonnet"
+        assert "name" in agents[0].frontmatter
+        assert "model" in agents[0].frontmatter
+        assert agents[0].body_html is not None
+        assert "security reviewer" in agents[0].body_html
 
     def test_minimal_plugin(self, minimal_plugin_path: Path) -> None:
         assert scan_agents(minimal_plugin_path) == []
@@ -127,6 +140,78 @@ class TestReadLicense:
 
     def test_minimal_plugin(self, minimal_plugin_path: Path) -> None:
         assert read_license(minimal_plugin_path) is None
+
+
+class TestParseFrontmatter:
+    def test_simple_key_value(self) -> None:
+        text = "---\nname: my-skill\ndescription: A skill\n---\nBody text"
+        meta, body = _parse_frontmatter(text)
+        assert meta["name"] == "my-skill"
+        assert meta["description"] == "A skill"
+        assert body == "Body text"
+
+    def test_no_frontmatter(self) -> None:
+        text = "Just plain text"
+        meta, body = _parse_frontmatter(text)
+        assert meta == {}
+        assert body == "Just plain text"
+
+    def test_multiline_block_scalar(self) -> None:
+        text = (
+            "---\n"
+            "name: my-agent\n"
+            "description: |\n"
+            "  This is a multi-line\n"
+            "  description value.\n"
+            "model: sonnet\n"
+            "---\n"
+            "Body content"
+        )
+        meta, body = _parse_frontmatter(text)
+        assert meta["name"] == "my-agent"
+        assert "multi-line" in meta["description"]
+        assert "description value" in meta["description"]
+        assert meta["model"] == "sonnet"
+        assert body == "Body content"
+
+    def test_folded_block_scalar(self) -> None:
+        text = "---\ndescription: >\n  This is a folded\n  description.\n---\nBody"
+        meta, body = _parse_frontmatter(text)
+        assert "folded" in meta["description"]
+        assert body == "Body"
+
+    def test_boolean_values_as_string(self) -> None:
+        text = "---\ndisable-model-invocation: true\n---\nBody"
+        meta, body = _parse_frontmatter(text)
+        assert meta["disable-model-invocation"] == "True"
+
+    def test_list_values_joined(self) -> None:
+        text = "---\ntools:\n  - Read\n  - Write\n  - Bash\n---\nBody"
+        meta, body = _parse_frontmatter(text)
+        assert meta["tools"] == "Read, Write, Bash"
+
+    def test_unclosed_frontmatter(self) -> None:
+        text = "---\nname: test\nNo closing delimiter"
+        meta, body = _parse_frontmatter(text)
+        assert meta == {}
+        assert body == text
+
+    def test_empty_frontmatter(self) -> None:
+        text = "---\n---\nBody only"
+        meta, body = _parse_frontmatter(text)
+        assert meta == {}
+        assert body == "Body only"
+
+    def test_value_with_colon(self) -> None:
+        text = "---\ndescription: 'Deploy to production: safely'\n---\nBody"
+        meta, body = _parse_frontmatter(text)
+        assert "production" in meta["description"]
+        assert "safely" in meta["description"]
+
+    def test_inline_list(self) -> None:
+        text = "---\nallowed-tools: [Read, Grep, Glob]\n---\nBody"
+        meta, body = _parse_frontmatter(text)
+        assert meta["allowed-tools"] == "Read, Grep, Glob"
 
 
 class TestScanPlugin:
