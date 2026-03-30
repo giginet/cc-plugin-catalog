@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import shutil
 import subprocess
@@ -36,6 +37,11 @@ def _get_repo_base_url(repo_path: Path) -> str | None:
         )
         url = result.stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
+        # Fall back to GitHub Actions environment variables
+        gh_repo = os.environ.get("GITHUB_REPOSITORY")
+        if gh_repo:
+            server = os.environ.get("GITHUB_SERVER_URL", "https://github.com")
+            return f"{server}/{gh_repo}"
         return None
 
     # Normalize remote URL
@@ -56,7 +62,7 @@ def _get_default_branch(repo_path: Path) -> str:
         )
         return result.stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
-        return "main"
+        return os.environ.get("GITHUB_REF_NAME", "main")
 
 
 def _build_source_url(
