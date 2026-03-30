@@ -38,10 +38,12 @@ def _get_repo_base_url(repo_path: Path) -> str | None:
     except (subprocess.CalledProcessError, FileNotFoundError):
         return None
 
-    # Convert SSH/git URLs to HTTPS browse URL
+    # Normalize remote URL
     url = re.sub(r"\.git$", "", url)
-    url = re.sub(r"^ssh://git@([^/]+)/", r"https://\1/", url)
-    url = re.sub(r"^git@([^:]+):", r"https://\1/", url)
+    # ssh://git@host/path → git@host:path
+    url = re.sub(r"^ssh://git@([^/]+)/", r"git@\1:", url)
+    # git@github.com:owner/repo → https://github.com/owner/repo
+    url = re.sub(r"^git@github\.com:", "https://github.com/", url)
     return url
 
 

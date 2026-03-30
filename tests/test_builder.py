@@ -137,10 +137,10 @@ class TestGetRepoBaseUrl:
             assert _get_repo_base_url(tmp_path) == "https://github.com/owner/repo"
 
     def test_github_enterprise_ssh_url(self, tmp_path: Path) -> None:
-        """GHE SSH URLs are converted to HTTPS browse URLs."""
+        """GHE git@ SSH URLs are kept as-is (not converted to HTTPS)."""
         with self._mock_git_remote("git@my-git-server.com:owner/repo.git"):
             result = _get_repo_base_url(tmp_path)
-            assert result == "https://my-git-server.com/owner/repo"
+            assert result == "git@my-git-server.com:owner/repo"
 
     def test_github_enterprise_https_url(self, tmp_path: Path) -> None:
         with self._mock_git_remote("https://my-git-server.com/owner/repo.git"):
@@ -153,12 +153,13 @@ class TestGetRepoBaseUrl:
             assert result == "https://my-git-server.com/owner/repo"
 
     def test_github_enterprise_ssh_protocol_url(self, tmp_path: Path) -> None:
-        """ssh://git@ format used by GHE is converted to HTTPS."""
+        """ssh://git@host/path format is normalized to git@host:path."""
         with self._mock_git_remote("ssh://git@my-ghe-server/owner/repo.git"):
             result = _get_repo_base_url(tmp_path)
-            assert result == "https://my-ghe-server/owner/repo"
+            assert result == "git@my-ghe-server:owner/repo"
 
     def test_github_ssh_protocol_url(self, tmp_path: Path) -> None:
+        """ssh://git@github.com/path is converted to HTTPS via git@ normalization."""
         with self._mock_git_remote("ssh://git@github.com/owner/repo.git"):
             result = _get_repo_base_url(tmp_path)
             assert result == "https://github.com/owner/repo"
@@ -204,6 +205,11 @@ class TestResolveRepositoryId:
 
     def test_empty_default_repository_no_remote_returns_none(self) -> None:
         assert _resolve_repository_id("", None) is None
+
+    def test_github_enterprise_ssh_uses_git_url(self) -> None:
+        """GHE git@ URL is used as-is for repository_id."""
+        result = _resolve_repository_id(None, "git@my-ghe-server:owner/repo")
+        assert result == "git@my-ghe-server:owner/repo"
 
 
 class TestBuildSiteRepositoryId:
