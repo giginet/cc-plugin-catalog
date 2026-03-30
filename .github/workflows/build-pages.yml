@@ -2,10 +2,6 @@ name: Build and Deploy Plugin Catalog
 on:
   workflow_call:
     inputs:
-      catalog-version:
-        type: string
-        default: ""
-        description: "cc-plugin-catalog version to install (empty = latest)"
       catalog-ref:
         type: string
         default: ""
@@ -43,7 +39,7 @@ jobs:
         if: inputs.catalog-ref != ''
         run: apt-get update -qq && apt-get install -y -qq git > /dev/null
       - name: Install cc-plugin-catalog
-        run: pip install --quiet ${{ inputs.catalog-ref && format('git+https://github.com/giginet/cc-plugin-catalog@{0}', inputs.catalog-ref) || format('cc-plugin-catalog{0}', inputs.catalog-version && format('=={0}', inputs.catalog-version) || '') }}
+        run: pip install --quiet ${{ inputs.catalog-ref && format('git+https://github.com/giginet/cc-plugin-catalog@{0}', inputs.catalog-ref) || 'cc-plugin-catalog' }}
       - name: Build site
         run: cc-plugin-catalog build . -o ${{ inputs.output-dir }}${{ inputs.base-url && format(' --base-url {0}', inputs.base-url) || '' }}${{ inputs.logo && format(' --logo {0}', inputs.logo) || '' }}${{ inputs.default-repository && format(' --default-repository {0}', inputs.default-repository) || '' }}
       - uses: actions/upload-pages-artifact@v4
