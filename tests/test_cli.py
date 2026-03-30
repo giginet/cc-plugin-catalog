@@ -29,7 +29,6 @@ class TestBuildCommand:
         assert result.exit_code != 0
 
 
-
 class TestPreviewCommand:
     def test_preview_builds_and_serves(
         self, sample_marketplace_path: Path, tmp_path: Path
