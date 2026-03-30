@@ -9,7 +9,7 @@ from pathlib import Path
 
 import click
 
-from .builder import build_site
+from .builder import RepositoryNotDetectedError, build_site
 
 
 @click.group()
@@ -49,13 +49,16 @@ def build(
     """Build a static site from a Plugin Marketplace repository."""
     click.echo(f"Building site from {repo_path} -> {output}")
     logo_path = Path(logo) if logo else None
-    build_site(
-        repo_path,
-        output,
-        base_url=base_url or None,
-        logo=logo_path,
-        default_repository=default_repository or None,
-    )
+    try:
+        build_site(
+            repo_path,
+            output,
+            base_url=base_url or None,
+            logo=logo_path,
+            default_repository=default_repository or None,
+        )
+    except RepositoryNotDetectedError as e:
+        raise click.UsageError(str(e)) from e
     click.echo(f"Site generated at {output}")
 
 
@@ -108,13 +111,16 @@ def preview(
     """Build and serve the site locally with live preview."""
     click.echo(f"Building site from {repo_path} -> {output}")
     logo_path = Path(logo) if logo else None
-    build_site(
-        repo_path,
-        output,
-        base_url=base_url or None,
-        logo=logo_path,
-        default_repository=default_repository or None,
-    )
+    try:
+        build_site(
+            repo_path,
+            output,
+            base_url=base_url or None,
+            logo=logo_path,
+            default_repository=default_repository or None,
+        )
+    except RepositoryNotDetectedError as e:
+        raise click.UsageError(str(e)) from e
     click.echo(f"Site generated at {output}")
 
     handler = functools.partial(
