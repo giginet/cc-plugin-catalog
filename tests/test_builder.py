@@ -168,9 +168,7 @@ class TestResolveRepositoryId:
         assert result == "owner/repo"
 
     def test_github_enterprise_https_uses_full_url(self) -> None:
-        result = _resolve_repository_id(
-            None, "https://my-git-server.com/owner/repo"
-        )
+        result = _resolve_repository_id(None, "https://my-git-server.com/owner/repo")
         assert result == "https://my-git-server.com/owner/repo"
 
     def test_github_enterprise_https_auto_detect_over_default(self) -> None:
@@ -205,12 +203,8 @@ class TestBuildSiteRepositoryId:
     ) -> None:
         """build_site raises UsageError when repository cannot be resolved."""
         with (
-            patch(
-                "cc_plugin_catalog.builder._get_repo_base_url", return_value=None
-            ),
-            pytest.raises(
-                RepositoryNotDetectedError, match="Could not detect"
-            ),
+            patch("cc_plugin_catalog.builder._get_repo_base_url", return_value=None),
+            pytest.raises(RepositoryNotDetectedError, match="Could not detect"),
         ):
             build_site(sample_marketplace_path, tmp_path)
 
@@ -218,9 +212,7 @@ class TestBuildSiteRepositoryId:
         self, sample_marketplace_path: Path, tmp_path: Path
     ) -> None:
         """build_site succeeds with --default-repository when no git remote."""
-        with patch(
-            "cc_plugin_catalog.builder._get_repo_base_url", return_value=None
-        ):
+        with patch("cc_plugin_catalog.builder._get_repo_base_url", return_value=None):
             build_site(
                 sample_marketplace_path, tmp_path, default_repository="my-org/my-repo"
             )
