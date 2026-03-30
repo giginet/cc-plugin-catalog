@@ -175,14 +175,7 @@ class TestParseFrontmatter:
         assert body == "Body content"
 
     def test_folded_block_scalar(self) -> None:
-        text = (
-            "---\n"
-            "description: >\n"
-            "  This is a folded\n"
-            "  description.\n"
-            "---\n"
-            "Body"
-        )
+        text = "---\ndescription: >\n  This is a folded\n  description.\n---\nBody"
         meta, body = _parse_frontmatter(text)
         assert "folded" in meta["description"]
         assert body == "Body"
