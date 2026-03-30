@@ -164,6 +164,37 @@ class TestGetRepoBaseUrl:
             result = _get_repo_base_url(tmp_path)
             assert result == "git@github.com:owner/repo"
 
+    def test_fallback_to_github_actions_env(self, tmp_path: Path, monkeypatch) -> None:
+        """Falls back to GITHUB_REPOSITORY when git is not available."""
+        monkeypatch.setenv("GITHUB_REPOSITORY", "owner/repo")
+        monkeypatch.delenv("GITHUB_SERVER_URL", raising=False)
+        with patch(
+            "cc_plugin_catalog.builder.subprocess.run",
+            side_effect=FileNotFoundError,
+        ):
+            assert _get_repo_base_url(tmp_path) == "https://github.com/owner/repo"
+
+    def test_fallback_to_github_actions_env_with_custom_server(
+        self, tmp_path: Path, monkeypatch
+    ) -> None:
+        """Falls back to GITHUB_SERVER_URL + GITHUB_REPOSITORY for GHE."""
+        monkeypatch.setenv("GITHUB_REPOSITORY", "owner/repo")
+        monkeypatch.setenv("GITHUB_SERVER_URL", "https://ghe.example.com")
+        with patch(
+            "cc_plugin_catalog.builder.subprocess.run",
+            side_effect=FileNotFoundError,
+        ):
+            assert _get_repo_base_url(tmp_path) == "https://ghe.example.com/owner/repo"
+
+    def test_no_git_no_env_returns_none(self, tmp_path: Path, monkeypatch) -> None:
+        """Returns None when git is unavailable and no env vars are set."""
+        monkeypatch.delenv("GITHUB_REPOSITORY", raising=False)
+        with patch(
+            "cc_plugin_catalog.builder.subprocess.run",
+            side_effect=FileNotFoundError,
+        ):
+            assert _get_repo_base_url(tmp_path) is None
+
 
 class TestResolveRepositoryId:
     """Tests for _resolve_repository_id."""
