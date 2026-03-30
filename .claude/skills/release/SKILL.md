@@ -31,8 +31,6 @@ Update the version in the following files:
 
 - `pyproject.toml` — the `version` field
 - `src/cc_plugin_catalog/__init__.py` — the `__version__` variable
-- `marketplace.json` at the project root (only if the file exists)
-- `plugin.json` at the project root (only if the file exists)
 
 ### 4. Commit
 
