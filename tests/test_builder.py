@@ -3,10 +3,10 @@
 from pathlib import Path
 from unittest.mock import patch
 
-import click
 import pytest
 
 from cc_plugin_catalog.builder import (
+    RepositoryNotDetectedError,
     _extract_repo_id,
     _get_repo_base_url,
     _resolve_repository_id,
@@ -208,7 +208,9 @@ class TestBuildSiteRepositoryId:
             patch(
                 "cc_plugin_catalog.builder._get_repo_base_url", return_value=None
             ),
-            pytest.raises(click.UsageError, match="Could not detect repository"),
+            pytest.raises(
+                RepositoryNotDetectedError, match="Could not detect"
+            ),
         ):
             build_site(sample_marketplace_path, tmp_path)
 

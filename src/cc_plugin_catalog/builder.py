@@ -7,13 +7,15 @@ import shutil
 import subprocess
 from pathlib import Path
 
-import click
-
 from .markdown_utils import render_markdown
 from .models import Marketplace, Plugin
 from .parser import parse_marketplace, parse_plugin_manifest
 from .renderer import render_site
 from .scanner import read_license, read_readme, scan_plugin
+
+
+class RepositoryNotDetectedError(Exception):
+    """Raised when the repository identifier cannot be resolved."""
 
 
 def _resolve_plugin_path(repo_path: Path, source: str | dict) -> Path | None:
@@ -188,7 +190,7 @@ def build_site(
 
     repository_id = _resolve_repository_id(default_repository, repo_base_url)
     if repository_id is None:
-        raise click.UsageError(
+        raise RepositoryNotDetectedError(
             "Could not detect repository identifier from git remote. "
             "Please specify --default-repository."
         )
