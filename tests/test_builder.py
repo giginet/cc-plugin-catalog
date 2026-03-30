@@ -152,6 +152,17 @@ class TestGetRepoBaseUrl:
             result = _get_repo_base_url(tmp_path)
             assert result == "https://my-git-server.com/owner/repo"
 
+    def test_github_enterprise_ssh_protocol_url(self, tmp_path: Path) -> None:
+        """ssh://git@ format used by GHE is converted to HTTPS."""
+        with self._mock_git_remote("ssh://git@my-ghe-server/owner/repo.git"):
+            result = _get_repo_base_url(tmp_path)
+            assert result == "https://my-ghe-server/owner/repo"
+
+    def test_github_ssh_protocol_url(self, tmp_path: Path) -> None:
+        with self._mock_git_remote("ssh://git@github.com/owner/repo.git"):
+            result = _get_repo_base_url(tmp_path)
+            assert result == "https://github.com/owner/repo"
+
 
 class TestResolveRepositoryId:
     """Tests for _resolve_repository_id."""
