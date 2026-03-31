@@ -32,15 +32,19 @@ Update the version in the following files:
 - `pyproject.toml` — the `version` field
 - `src/cc_plugin_catalog/__init__.py` — the `__version__` variable
 
-### 4. Commit
+### 4. Sync lockfile
 
-Commit all changed files. Commit message: `Bump version to X.Y.Z`
+Run `uv sync` to ensure `uv.lock` reflects the updated version.
 
-### 5. Create a tag
+### 5. Commit
+
+Commit all changed files (including `uv.lock`). Commit message: `Bump version to X.Y.Z`
+
+### 6. Create a tag
 
 Create a git tag **without** a `v` prefix. Example: `1.2.0`
 
-### 6. Push
+### 7. Push
 
 Push the commit and tag to the remote:
 
@@ -49,7 +53,7 @@ git push origin HEAD
 git push origin <tag>
 ```
 
-### 7. Create a GitHub Release
+### 8. Create a GitHub Release
 
 Summarize the changes since the previous tag and create a GitHub Release.
 
