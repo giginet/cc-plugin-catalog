@@ -142,7 +142,8 @@ jobs:
         uses: actions/deploy-pages@v4
 ```
 
-> **Note:** `--marketplace-repository` is used to generate install commands on each plugin page. Accepts `owner/repo` for GitHub.com. For GitHub Enterprise or other hosts, specify the full URL (e.g. `https://my-git-server.com/owner/my-marketplace`). When set, this value takes priority over the auto-detected git remote. It is recommended to explicitly set this option for GitHub Enterprise environments.
+> [!NOTE]
+> `--marketplace-repository` is used to generate install commands on each plugin page. Accepts `owner/repo` for GitHub.com. For GitHub Enterprise or other hosts, specify the full URL (e.g. `https://my-git-server.com/owner/my-marketplace`). When set, this value takes priority over the auto-detected git remote. It is recommended to explicitly set this option for GitHub Enterprise environments.
 
 ## Supported Plugin Components
 
