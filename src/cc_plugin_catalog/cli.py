@@ -39,12 +39,12 @@ def main() -> None:
     help="Path to a logo image to display in the header.",
 )
 @click.option(
-    "--default-repository",
+    "--marketplace-repository",
     default="",
     help="Marketplace repo identifier for install commands (e.g. owner/repo).",
 )
 def build(
-    repo_path: Path, output: Path, base_url: str, logo: str, default_repository: str
+    repo_path: Path, output: Path, base_url: str, logo: str, marketplace_repository: str
 ) -> None:
     """Build a static site from a Plugin Marketplace repository."""
     click.echo(f"Building site from {repo_path} -> {output}")
@@ -55,7 +55,7 @@ def build(
             output,
             base_url=base_url or None,
             logo=logo_path,
-            default_repository=default_repository or None,
+            marketplace_repository=marketplace_repository or None,
         )
     except RepositoryNotDetectedError as e:
         raise click.UsageError(str(e)) from e
@@ -95,7 +95,7 @@ def build(
     help="Path to a logo image to display in the header.",
 )
 @click.option(
-    "--default-repository",
+    "--marketplace-repository",
     default="",
     help="Marketplace repo identifier for install commands (e.g. owner/repo).",
 )
@@ -106,7 +106,7 @@ def preview(
     host: str,
     base_url: str,
     logo: str,
-    default_repository: str,
+    marketplace_repository: str,
 ) -> None:
     """Build and serve the site locally with live preview."""
     click.echo(f"Building site from {repo_path} -> {output}")
@@ -117,7 +117,7 @@ def preview(
             output,
             base_url=base_url or None,
             logo=logo_path,
-            default_repository=default_repository or None,
+            marketplace_repository=marketplace_repository or None,
         )
     except RepositoryNotDetectedError as e:
         raise click.UsageError(str(e)) from e

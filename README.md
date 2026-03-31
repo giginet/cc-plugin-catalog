@@ -95,7 +95,7 @@ All inputs are optional.
 | `output-dir` | `"_site"` | Output directory for generated files |
 | `base-url` | `""` | Base URL for OGP meta tags. OGP tags are only generated when this is set. |
 | `logo` | `""` | Path to a logo image in the repository (e.g. `assets/logo.png`) |
-| `default-repository` | `""` | Marketplace repo identifier for install commands. `owner/repo` for GitHub.com, full URL for GitHub Enterprise (e.g. `https://my-git-server.com/owner/repo`). Auto-detected from git remote if not set. |
+| `marketplace-repository` | `""` | Marketplace repo identifier for install commands. `owner/repo` for GitHub.com, full URL for GitHub Enterprise (e.g. `https://my-git-server.com/owner/repo`). Auto-detected from git remote if not set. |
 
 ```yaml
 # Example with optional inputs
@@ -134,7 +134,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - run: uv tool install cc-plugin-catalog
-      - run: cc-plugin-catalog build . -o _site --base-url "https://example.github.io/my-marketplace" --logo assets/logo.png --default-repository "https://my-git-server.com/owner/my-marketplace"
+      - run: cc-plugin-catalog build . -o _site --base-url "https://example.github.io/my-marketplace" --logo assets/logo.png --marketplace-repository "https://my-git-server.com/owner/my-marketplace"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
@@ -142,7 +142,7 @@ jobs:
         uses: actions/deploy-pages@v4
 ```
 
-> **Note:** `--default-repository` is used to generate install commands on each plugin page. Accepts `owner/repo` for GitHub.com. For GitHub Enterprise or other hosts, specify the full URL (e.g. `https://my-git-server.com/owner/my-marketplace`).
+> **Note:** `--marketplace-repository` is used to generate install commands on each plugin page. Accepts `owner/repo` for GitHub.com. For GitHub Enterprise or other hosts, specify the full URL (e.g. `https://my-git-server.com/owner/my-marketplace`). When set, this value takes priority over the auto-detected git remote. It is recommended to explicitly set this option for GitHub Enterprise environments.
 
 ## Supported Plugin Components
 

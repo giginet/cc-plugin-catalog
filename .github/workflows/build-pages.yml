@@ -18,7 +18,7 @@ on:
         type: string
         default: ""
         description: "Path to a logo image in the repository (e.g. assets/logo.png)"
-      default-repository:
+      marketplace-repository:
         type: string
         default: ""
         description: "Marketplace repo identifier for install commands (e.g. owner/repo). Auto-detected from git remote if not set."
@@ -41,7 +41,7 @@ jobs:
       - name: Install cc-plugin-catalog
         run: pip install --quiet ${{ inputs.catalog-ref && format('git+https://github.com/giginet/cc-plugin-catalog@{0}', inputs.catalog-ref) || 'cc-plugin-catalog' }}
       - name: Build site
-        run: cc-plugin-catalog build . -o ${{ inputs.output-dir }}${{ inputs.base-url && format(' --base-url {0}', inputs.base-url) || '' }}${{ inputs.logo && format(' --logo {0}', inputs.logo) || '' }}${{ inputs.default-repository && format(' --default-repository {0}', inputs.default-repository) || '' }}
+        run: cc-plugin-catalog build . -o ${{ inputs.output-dir }}${{ inputs.base-url && format(' --base-url {0}', inputs.base-url) || '' }}${{ inputs.logo && format(' --logo {0}', inputs.logo) || '' }}${{ inputs.marketplace-repository && format(' --marketplace-repository {0}', inputs.marketplace-repository) || '' }}
       - uses: actions/upload-pages-artifact@v4
         with:
           path: ${{ inputs.output-dir }}

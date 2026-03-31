@@ -115,22 +115,22 @@ def _extract_repo_id(url: str) -> str | None:
 
 
 def _resolve_repository_id(
-    default_repository: str | None,
+    marketplace_repository: str | None,
     repo_base_url: str | None,
 ) -> str | None:
     """Resolve the marketplace repository identifier for install commands.
 
     Priority:
-    1. Auto-detected from git remote (owner/repo for GitHub, full URL otherwise)
-    2. Explicit --default-repository fallback
+    1. Explicit --marketplace-repository (if provided)
+    2. Auto-detected from git remote (owner/repo for GitHub, full URL otherwise)
     """
+    if marketplace_repository:
+        return marketplace_repository
     if repo_base_url:
         repo_id = _extract_repo_id(repo_base_url)
         if repo_id:
             return repo_id
         return repo_base_url
-    if default_repository:
-        return default_repository
     return None
 
 
@@ -140,7 +140,7 @@ def build_site(
     *,
     base_url: str | None = None,
     logo: Path | None = None,
-    default_repository: str | None = None,
+    marketplace_repository: str | None = None,
 ) -> None:
     """Build the complete static site from a marketplace repository."""
     repo_path = repo_path.resolve()
@@ -204,11 +204,11 @@ def build_site(
 
         plugins.append(plugin)
 
-    repository_id = _resolve_repository_id(default_repository, repo_base_url)
+    repository_id = _resolve_repository_id(marketplace_repository, repo_base_url)
     if repository_id is None:
         raise RepositoryNotDetectedError(
             "Could not detect repository identifier from git remote. "
-            "Please specify --default-repository."
+            "Please specify --marketplace-repository."
         )
 
     marketplace = Marketplace(

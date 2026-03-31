@@ -199,12 +199,12 @@ class TestGetRepoBaseUrl:
 class TestResolveRepositoryId:
     """Tests for _resolve_repository_id."""
 
-    def test_git_remote_takes_priority_over_default_repository(self) -> None:
-        """git remote auto-detect is preferred over --default-repository."""
+    def test_marketplace_repository_takes_priority_over_git_remote(self) -> None:
+        """--marketplace-repository takes priority over git remote auto-detect."""
         result = _resolve_repository_id(
             "my-org/my-repo", "https://github.com/other/repo"
         )
-        assert result == "other/repo"
+        assert result == "my-org/my-repo"
 
     def test_github_url_extracts_owner_repo(self) -> None:
         result = _resolve_repository_id(None, "https://github.com/owner/repo")
@@ -214,27 +214,27 @@ class TestResolveRepositoryId:
         result = _resolve_repository_id(None, "https://my-git-server.com/owner/repo")
         assert result == "https://my-git-server.com/owner/repo"
 
-    def test_github_enterprise_https_auto_detect_over_default(self) -> None:
-        """GHE auto-detect takes priority over --default-repository."""
+    def test_marketplace_repository_takes_priority_over_ghe_auto_detect(self) -> None:
+        """--marketplace-repository takes priority over GHE auto-detect."""
         result = _resolve_repository_id(
             "fallback/repo",
             "https://my-git-server.com/owner/repo",
         )
-        assert result == "https://my-git-server.com/owner/repo"
+        assert result == "fallback/repo"
 
-    def test_default_repository_used_when_no_remote(self) -> None:
-        """--default-repository is used as fallback when git remote is unavailable."""
+    def test_marketplace_repository_used_when_no_remote(self) -> None:
+        """--marketplace-repository is used when git remote is unavailable."""
         result = _resolve_repository_id("my-org/my-marketplace", None)
         assert result == "my-org/my-marketplace"
 
     def test_no_remote_no_default_returns_none(self) -> None:
         assert _resolve_repository_id(None, None) is None
 
-    def test_empty_default_repository_with_remote(self) -> None:
+    def test_empty_marketplace_repository_with_remote(self) -> None:
         result = _resolve_repository_id("", "https://github.com/owner/repo")
         assert result == "owner/repo"
 
-    def test_empty_default_repository_no_remote_returns_none(self) -> None:
+    def test_empty_marketplace_repository_no_remote_returns_none(self) -> None:
         assert _resolve_repository_id("", None) is None
 
     def test_github_enterprise_ssh_uses_git_url(self) -> None:
@@ -256,13 +256,15 @@ class TestBuildSiteRepositoryId:
         ):
             build_site(sample_marketplace_path, tmp_path)
 
-    def test_build_site_uses_default_repository_fallback(
+    def test_build_site_uses_marketplace_repository_fallback(
         self, sample_marketplace_path: Path, tmp_path: Path
     ) -> None:
-        """build_site succeeds with --default-repository when no git remote."""
+        """build_site succeeds with --marketplace-repository when no git remote."""
         with patch("cc_plugin_catalog.builder._get_repo_base_url", return_value=None):
             build_site(
-                sample_marketplace_path, tmp_path, default_repository="my-org/my-repo"
+                sample_marketplace_path,
+                tmp_path,
+                marketplace_repository="my-org/my-repo",
             )
         assert (tmp_path / "index.html").exists()
 
