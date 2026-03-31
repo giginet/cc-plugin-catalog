@@ -44,7 +44,7 @@ select = ["E", "F", "I", "UP"]
 testpaths = ["tests"]
 
 [tool.uv]
-exclude-newer = "2026-03-24T00:00:00Z"
+exclude-newer = "1 week"
 
 [tool.ty.environment]
 python-version = "3.12"
