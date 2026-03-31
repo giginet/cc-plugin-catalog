@@ -1,6 +1,6 @@
 [project]
 name = "cc-plugin-catalog"
-version = "1.2.1"
+version = "1.2.2"
 description = "Static site generator for Claude Code Plugin Marketplace repositories"
 readme = "README.md"
 requires-python = ">=3.12"
