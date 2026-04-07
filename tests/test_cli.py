@@ -3,8 +3,7 @@
 import threading
 import urllib.request
 from pathlib import Path
-
-from click.testing import CliRunner
+from unittest.mock import patch
 
 from cc_plugin_catalog.cli import main
 
@@ -13,43 +12,42 @@ class TestBuildCommand:
     def test_build_succeeds(
         self, sample_marketplace_path: Path, tmp_path: Path
     ) -> None:
-        runner = CliRunner()
         output_dir = tmp_path / "output"
-        result = runner.invoke(
-            main,
-            ["build", str(sample_marketplace_path), "-o", str(output_dir)],
-        )
-        assert result.exit_code == 0
-        assert "Site generated" in result.output
+        with patch(
+            "cc_plugin_catalog.builder._get_repo_base_url",
+            return_value="https://github.com/test/repo",
+        ):
+            main(["build", str(sample_marketplace_path), "-o", str(output_dir)])
         assert (output_dir / "index.html").exists()
 
     def test_build_invalid_path(self, tmp_path: Path) -> None:
-        runner = CliRunner()
-        result = runner.invoke(main, ["build", "/nonexistent/path"])
-        assert result.exit_code != 0
+        import pytest
+
+        with pytest.raises(SystemExit) as exc_info:
+            main(["build", "/nonexistent/path"])
+        assert exc_info.value.code != 0
 
 
 class TestPreviewCommand:
     def test_preview_builds_and_serves(
         self, sample_marketplace_path: Path, tmp_path: Path
     ) -> None:
+        import functools
         import http.server
+        import os
 
         output_dir = tmp_path / "output"
         port = 18765
 
         # Build first so we can verify the server serves the right files
-        runner = CliRunner()
-        runner.invoke(
-            main,
-            ["build", str(sample_marketplace_path), "-o", str(output_dir)],
-        )
+        with patch(
+            "cc_plugin_catalog.builder._get_repo_base_url",
+            return_value="https://github.com/test/repo",
+        ):
+            main(["build", str(sample_marketplace_path), "-o", str(output_dir)])
         assert (output_dir / "index.html").exists()
 
         # Start server in a thread
-        import functools
-        import os
-
         handler_cls = functools.partial(
             http.server.SimpleHTTPRequestHandler,
             directory=os.fspath(output_dir.resolve()),
@@ -70,6 +68,8 @@ class TestPreviewCommand:
             thread.join(timeout=5)
 
     def test_preview_invalid_path(self, tmp_path: Path) -> None:
-        runner = CliRunner()
-        result = runner.invoke(main, ["preview", "/nonexistent/path"])
-        assert result.exit_code != 0
+        import pytest
+
+        with pytest.raises(SystemExit) as exc_info:
+            main(["preview", "/nonexistent/path"])
+        assert exc_info.value.code != 0
