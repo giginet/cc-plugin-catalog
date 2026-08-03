@@ -34,7 +34,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install git
         if: inputs.catalog-ref != ''
         run: apt-get update -qq && apt-get install -y -qq git > /dev/null
