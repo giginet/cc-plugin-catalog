@@ -1,28 +1,22 @@
 (function () {
-    function getPreferredTheme() {
-        var stored = localStorage.getItem("theme");
-        if (stored === "light" || stored === "dark") {
-            return stored;
-        }
-        return window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light";
+    var theme;
+    try { theme = localStorage.getItem('theme'); } catch (_) {}
+    if (theme !== 'light' && theme !== 'dark') {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
-
-    function applyTheme(theme) {
-        document.body.setAttribute("data-theme", theme);
-        localStorage.setItem("theme", theme);
+    function apply(value) {
+        document.documentElement.setAttribute('data-theme', value);
+        document.documentElement.style.colorScheme = value;
+        var button = document.getElementById('theme-toggle');
+        if (button) button.setAttribute('aria-label', 'Switch to ' + (value === 'dark' ? 'light' : 'dark') + ' theme');
     }
-
-    applyTheme(getPreferredTheme());
-
-    document.addEventListener("DOMContentLoaded", function () {
-        var btn = document.getElementById("theme-toggle");
-        if (btn) {
-            btn.addEventListener("click", function () {
-                var current = document.body.getAttribute("data-theme");
-                applyTheme(current === "dark" ? "light" : "dark");
-            });
-        }
+    apply(theme);
+    document.addEventListener('DOMContentLoaded', function () {
+        apply(theme);
+        document.getElementById('theme-toggle').addEventListener('click', function () {
+            theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            apply(theme);
+            try { localStorage.setItem('theme', theme); } catch (_) {}
+        });
     });
 })();

@@ -1,0 +1,24 @@
+{% macro badges(plugin) %}
+{% for key, label in [('skills', 'Skills'), ('commands', 'Commands'), ('agents', 'Agents'), ('hooks', 'Hooks'), ('mcp_servers', 'MCP'), ('lsp_servers', 'LSP'), ('apps', 'Apps')] %}
+{% set items = plugin.components | attr(key) %}
+{% if items %}<span class="badge badge-{{ key | replace('_servers', '') }}">{{ label }} <span class="badge-count">{{ items | length }}</span></span>{% endif %}
+{% endfor %}
+{% endmacro %}
+
+{% macro card(plugin, prefix='') %}
+<article class="plugin-card" data-name="{{ plugin.name }} {{ plugin.title }}" data-description="{{ plugin.description or '' }}" data-category="{{ plugin.category or '' }}" data-tags='{{ plugin.tags | tojson }}' data-keywords="{{ plugin.keywords | join(' ') }}" data-tools="{% if plugin.components.skills %}skills {% endif %}{% if plugin.components.commands %}commands {% endif %}{% if plugin.components.agents %}agents {% endif %}{% if plugin.components.hooks %}hooks {% endif %}{% if plugin.components.mcp_servers %}mcp {% endif %}{% if plugin.components.lsp_servers %}lsp {% endif %}{% if plugin.components.apps %}apps {% endif %}">
+    <a href="{{ prefix }}plugins/{{ plugin.name }}/index.html" class="card-link">
+        <span class="plugin-glyph" aria-hidden="true">{{ plugin.name[:2] | upper }}</span>
+        <div class="card-body">
+            <div class="card-heading"><h2 class="card-title">{{ plugin.title }}</h2>{% if plugin.version %}<span class="card-version">v{{ plugin.version }}</span>{% endif %}</div>
+            {% if plugin.description %}<p class="card-description">{{ plugin.description }}</p>{% endif %}
+            <div class="card-badges">{{ badges(plugin) }}</div>
+        </div>
+        <div class="card-footer">
+            {% if plugin.category %}<span class="card-category">{{ plugin.category }}</span>{% endif %}
+            {% if plugin.author %}<span class="card-author">{{ plugin.author.name }}</span>{% endif %}
+        </div>
+        <span class="card-arrow" aria-hidden="true">↗</span>
+    </a>
+</article>
+{% endmacro %}
