@@ -12,14 +12,31 @@
 {% block home_href %}../../index.html{% endblock %}
 {% block logo_path %}../../static/{{ logo }}{% endblock %}
 
+{% block sidebar %}
+<div class="sidebar-label">Explorer</div>
+<a href="../../index.html" class="sidebar-link"><span aria-hidden="true">←</span> All plugins <span class="nav-count">{{ marketplace.plugins | length }}</span></a>
+<div class="sidebar-section">
+    <div class="sidebar-label">On this page</div>
+    <a class="sidebar-link" href="#overview">Overview</a>
+    <a class="sidebar-link" href="#installation">Installation</a>
+    {% for key, label in [('skills', 'Skills'), ('commands', 'Commands'), ('agents', 'Agents'), ('hooks', 'Hooks'), ('mcp_servers', 'MCP servers'), ('lsp_servers', 'LSP servers'), ('apps', 'Apps')] %}
+    {% set items = plugin.components | attr(key) %}
+    {% if items %}<a class="sidebar-link" href="#{{ key }}">{{ label }}<span class="nav-count">{{ items | length }}</span></a>{% endif %}
+    {% endfor %}
+    {% if plugin.readme_html %}<a class="sidebar-link" href="#readme">README</a>{% endif %}
+    {% if plugin.license_text %}<a class="sidebar-link" href="#license">License</a>{% endif %}
+</div>
+{% endblock %}
+
 {% block content %}
 <nav class="breadcrumb">
-    <a href="../../index.html">Home</a>
-    <span class="breadcrumb-sep">&rsaquo;</span>
+    <a href="../../index.html">Plugins</a>
+    <span class="breadcrumb-sep">/</span>
     <span>{{ plugin.title }}</span>
 </nav>
 
-<section class="plugin-header">
+<section class="plugin-header" id="overview">
+    <div class="eyebrow">Plugin / {{ plugin.name }}</div>
     <h1>{{ plugin.title }}</h1>
     {% if plugin.description %}
     <p class="plugin-description">{{ plugin.description }}</p>
@@ -66,7 +83,9 @@
     </div>
 </section>
 
-<section class="install-section">
+<div class="detail-layout">
+<aside class="install-section" id="installation">
+    <div class="terminal-label"><span aria-hidden="true">&gt;_</span> Get started</div>
     <h2>Installation</h2>
     {% if marketplace.format == 'codex' %}
     {% if plugin.installation == 'NOT_AVAILABLE' %}
@@ -104,7 +123,8 @@
         </div>
     </div>
     {% endif %}
-</section>
+</aside>
+<div class="detail-main">
 
 <script>
 (function() {
@@ -125,6 +145,12 @@
             navigator.clipboard.writeText(code).then(function() {
                 btn.textContent = 'Copied!';
                 setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+            }).catch(function() {
+                btn.textContent = 'Select code';
+                var selection = window.getSelection();
+                var range = document.createRange();
+                range.selectNodeContents(btn.parentElement.querySelector('code'));
+                selection.removeAllRanges(); selection.addRange(range);
             });
         });
     });
@@ -161,7 +187,7 @@
 {% macro has_detail(item) %}{% set extra = item.frontmatter.keys() | reject('equalto', 'description') | list %}{% if extra or item.body_html %}1{% endif %}{% endmacro %}
 
 {% if plugin.components.skills %}
-<section class="component-section">
+<section class="component-section" id="skills">
     <h2><span class="badge badge-skills">Skills</span></h2>
     <table class="component-table">
         <thead>
@@ -172,7 +198,7 @@
             <tr>
                 <td><code>{{ skill.name }}</code></td>
                 <td>{{ skill.description or "" }}</td>
-                <td class="detail-col">{% if has_detail(skill) | trim %}<button type="button" class="detail-toggle">Show Detail</button>{% endif %}</td>
+                <td class="detail-col">{% if has_detail(skill) | trim %}<button type="button" class="detail-toggle" aria-expanded="false">Show Detail</button>{% endif %}</td>
             </tr>
             {% if has_detail(skill) | trim %}
             {{ detail_cell(skill, 3) }}
@@ -184,7 +210,7 @@
 {% endif %}
 
 {% if plugin.components.commands %}
-<section class="component-section">
+<section class="component-section" id="commands">
     <h2><span class="badge badge-commands">Commands</span></h2>
     <table class="component-table">
         <thead>
@@ -195,7 +221,7 @@
             <tr>
                 <td><code>{{ cmd.name }}</code></td>
                 <td>{{ cmd.description or "" }}</td>
-                <td class="detail-col">{% if has_detail(cmd) | trim %}<button type="button" class="detail-toggle">Show Detail</button>{% endif %}</td>
+                <td class="detail-col">{% if has_detail(cmd) | trim %}<button type="button" class="detail-toggle" aria-expanded="false">Show Detail</button>{% endif %}</td>
             </tr>
             {% if has_detail(cmd) | trim %}
             {{ detail_cell(cmd, 3) }}
@@ -207,7 +233,7 @@
 {% endif %}
 
 {% if plugin.components.agents %}
-<section class="component-section">
+<section class="component-section" id="agents">
     <h2><span class="badge badge-agents">Agents</span></h2>
     <table class="component-table">
         <thead>
@@ -219,7 +245,7 @@
                 <td><code>{{ agent.name }}</code></td>
                 <td>{{ agent.description or "" }}</td>
                 <td>{{ agent.model or "" }}</td>
-                <td class="detail-col">{% if has_detail(agent) | trim %}<button type="button" class="detail-toggle">Show Detail</button>{% endif %}</td>
+                <td class="detail-col">{% if has_detail(agent) | trim %}<button type="button" class="detail-toggle" aria-expanded="false">Show Detail</button>{% endif %}</td>
             </tr>
             {% if has_detail(agent) | trim %}
             {{ detail_cell(agent, 4) }}
@@ -231,7 +257,7 @@
 {% endif %}
 
 {% if plugin.components.hooks %}
-<section class="component-section">
+<section class="component-section" id="hooks">
     <h2><span class="badge badge-hooks">Hooks</span></h2>
     <table class="component-table">
         <thead>
@@ -251,7 +277,7 @@
 {% endif %}
 
 {% if plugin.components.mcp_servers %}
-<section class="component-section">
+<section class="component-section" id="mcp_servers">
     <h2><span class="badge badge-mcp">MCP Servers</span></h2>
     <table class="component-table">
         <thead>
@@ -270,7 +296,7 @@
 {% endif %}
 
 {% if plugin.components.lsp_servers %}
-<section class="component-section">
+<section class="component-section" id="lsp_servers">
     <h2><span class="badge badge-lsp">LSP Servers</span></h2>
     <table class="component-table">
         <thead>
@@ -289,7 +315,7 @@
 {% endif %}
 
 {% if plugin.components.apps %}
-<section class="component-section">
+<section class="component-section" id="apps">
     <h2><span class="badge badge-apps">Apps</span></h2>
     <table class="component-table">
         <thead><tr><th>Name</th><th>ID</th></tr></thead>
@@ -303,7 +329,7 @@
 {% endif %}
 
 {% if plugin.readme_html %}
-<section class="readme-section">
+<section class="readme-section" id="readme">
     <h2>README</h2>
     <div class="markdown-content">
         {{ plugin.readme_html | safe }}
@@ -312,7 +338,7 @@
 {% endif %}
 
 {% if plugin.license_text %}
-<section class="license-section">
+<section class="license-section" id="license">
     <h2>License{% if plugin.license_id %} ({{ plugin.license_id }}){% endif %}</h2>
     <pre class="license-text">{{ plugin.license_text }}</pre>
 </section>
@@ -326,8 +352,11 @@ document.querySelectorAll('.detail-toggle').forEach(function(btn) {
         if (detail && detail.classList.contains('detail-row')) {
             var visible = detail.classList.toggle('detail-visible');
             this.textContent = visible ? 'Hide Detail' : 'Show Detail';
+            this.setAttribute('aria-expanded', String(visible));
         }
     });
 });
 </script>
+</div>
+</div>
 {% endblock %}
