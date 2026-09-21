@@ -1,4 +1,4 @@
-"""CLI entry point for agent-plugin-catalog."""
+"""CLI entry point for cc-plugin-catalog."""
 
 from __future__ import annotations
 
@@ -105,7 +105,7 @@ def _cmd_preview(args: argparse.Namespace) -> None:
 def main(argv: list[str] | None = None) -> None:
     """CLI entry point."""
     parser = argparse.ArgumentParser(
-        prog="agent-plugin-catalog",
+        prog="cc-plugin-catalog",
         description="Generate static catalogs for Claude Code and Codex marketplaces.",
     )
     parser.add_argument(

@@ -1,5 +1,5 @@
 [project]
-name = "agent-plugin-catalog"
+name = "cc-plugin-catalog"
 version = "2.0.0"
 description = "Static site generator for Claude Code and Codex Plugin Marketplace repositories"
 readme = "README.md"
@@ -17,14 +17,14 @@ dependencies = [
 ]
 
 [project.scripts]
-agent-plugin-catalog = "agent_plugin_catalog.cli:main"
+cc-plugin-catalog = "cc_plugin_catalog.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/agent_plugin_catalog"]
+packages = ["src/cc_plugin_catalog"]
 
 [dependency-groups]
 dev = [

@@ -15,7 +15,7 @@ TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 def _create_env() -> Environment:
     env = Environment(
-        loader=PackageLoader("agent_plugin_catalog", "templates"),
+        loader=PackageLoader("cc_plugin_catalog", "templates"),
         autoescape=True,
     )
     env.filters["shellquote"] = shlex.quote

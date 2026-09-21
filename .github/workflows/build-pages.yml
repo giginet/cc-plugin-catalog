@@ -5,7 +5,7 @@ on:
       catalog-ref:
         type: string
         default: ""
-        description: "Install agent-plugin-catalog from a git ref (branch, tag, or SHA) instead of PyPI"
+        description: "Install cc-plugin-catalog from a git ref (branch, tag, or SHA) instead of PyPI"
       output-dir:
         type: string
         default: "_site"
@@ -42,8 +42,8 @@ jobs:
       - name: Install git
         if: inputs.catalog-ref != ''
         run: apt-get update -qq && apt-get install -y -qq git > /dev/null
-      - name: Install agent-plugin-catalog
-        run: pip install --quiet ${{ inputs.catalog-ref && format('git+https://github.com/giginet/agent-plugin-catalog@{0}', inputs.catalog-ref) || 'agent-plugin-catalog' }}
+      - name: Install cc-plugin-catalog
+        run: pip install --quiet ${{ inputs.catalog-ref && format('git+https://github.com/giginet/cc-plugin-catalog@{0}', inputs.catalog-ref) || 'cc-plugin-catalog' }}
       - name: Build site
         env:
           CATALOG_OUTPUT: ${{ inputs.output-dir }}
@@ -52,7 +52,7 @@ jobs:
           CATALOG_REPOSITORY: ${{ inputs.marketplace-repository }}
           CATALOG_FORMAT: ${{ inputs.marketplace-format }}
         run: >-
-          agent-plugin-catalog build . -o "$CATALOG_OUTPUT"
+          cc-plugin-catalog build . -o "$CATALOG_OUTPUT"
           --base-url "$CATALOG_BASE_URL" --logo "$CATALOG_LOGO"
           --marketplace-repository "$CATALOG_REPOSITORY"
           --marketplace-format "$CATALOG_FORMAT"

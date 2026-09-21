@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from agent_plugin_catalog.scanner import (
+from cc_plugin_catalog.scanner import (
     _parse_frontmatter,
     read_license,
     read_readme,

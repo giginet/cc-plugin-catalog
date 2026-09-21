@@ -1,4 +1,4 @@
-from agent_plugin_catalog.markdown_utils import render_markdown
+from cc_plugin_catalog.markdown_utils import render_markdown
 
 
 class TestRenderMarkdown:

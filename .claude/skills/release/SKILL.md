@@ -7,7 +7,7 @@ allowed-tools: Read, Edit, Bash, Grep, Glob
 
 # Release
 
-Publish a new version of agent-plugin-catalog.
+Publish a new version of cc-plugin-catalog.
 
 ## Arguments
 
@@ -30,7 +30,7 @@ Read the `version` field from `pyproject.toml`.
 Update the version in the following files:
 
 - `pyproject.toml` — the `version` field
-- `src/agent_plugin_catalog/__init__.py` — the `__version__` variable
+- `src/cc_plugin_catalog/__init__.py` — the `__version__` variable
 
 ### 4. Sync lockfile
 

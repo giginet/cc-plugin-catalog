@@ -6,14 +6,14 @@ from unittest.mock import patch
 
 import pytest
 
-from agent_plugin_catalog.builder import (
+from cc_plugin_catalog.builder import (
     _build_source_url,
     _resolve_plugin_path,
     build_site,
 )
-from agent_plugin_catalog.cli import main
-from agent_plugin_catalog.parser import parse_marketplace, parse_plugin_manifest
-from agent_plugin_catalog.scanner import scan_plugin
+from cc_plugin_catalog.cli import main
+from cc_plugin_catalog.parser import parse_marketplace, parse_plugin_manifest
+from cc_plugin_catalog.scanner import scan_plugin
 
 
 def write_json(root: Path, name: str, data: dict) -> None:
@@ -150,7 +150,7 @@ def test_codex_source_resolution(codex_repo: Path) -> None:
 def test_codex_catalog_end_to_end(codex_repo: Path, tmp_path: Path) -> None:
     output = tmp_path / "site"
     with patch(
-        "agent_plugin_catalog.builder._get_repo_base_url",
+        "cc_plugin_catalog.builder._get_repo_base_url",
         return_value="https://github.com/example/plugins",
     ):
         main(
@@ -170,7 +170,7 @@ def test_codex_catalog_end_to_end(codex_repo: Path, tmp_path: Path) -> None:
     assert "Team Plugins" in index and "Team Helper" in index
     assert 'href="plugins/helper/index.html"' in index
     assert "Owner:" not in index
-    assert "agent-plugin-catalog" in index
+    assert "cc-plugin-catalog" in index
     assert "codex plugin marketplace add example/plugins" in detail
     assert "claude plugin" not in detail
     assert "Greet the user" in detail and "Say hello." in detail
@@ -302,4 +302,4 @@ def test_cli_renamed_version(capsys) -> None:
     with pytest.raises(SystemExit) as error:
         main(["--version"])
     assert error.value.code == 0
-    assert capsys.readouterr().out.startswith("agent-plugin-catalog ")
+    assert capsys.readouterr().out.startswith("cc-plugin-catalog ")

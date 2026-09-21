@@ -7,8 +7,8 @@ from pathlib import Path
 
 import yaml
 
-from agent_plugin_catalog.markdown_utils import render_markdown
-from agent_plugin_catalog.models import (
+from cc_plugin_catalog.markdown_utils import render_markdown
+from cc_plugin_catalog.models import (
     AgentInfo,
     AppEntry,
     CommandInfo,

@@ -7,7 +7,7 @@ exclude-newer = "2026-09-14T05:20:37.747013Z"
 exclude-newer-span = "P1W"
 
 [[package]]
-name = "agent-plugin-catalog"
+name = "cc-plugin-catalog"
 version = "2.0.0"
 source = { editable = "." }
 dependencies = [

@@ -1,4 +1,4 @@
-# agent-plugin-catalog
+# cc-plugin-catalog
 
 Static site generator for Claude Code and Codex Plugin Marketplace repositories.
 
@@ -34,5 +34,5 @@ uv run ty check src/          # Type check
 ## Release
 
 - Tag format: `X.Y.Z` (no `v` prefix, e.g. `1.0.0`)
-- Update version in both `pyproject.toml` and `src/agent_plugin_catalog/__init__.py`
+- Update version in both `pyproject.toml` and `src/cc_plugin_catalog/__init__.py`
 - Create a GitHub Release with the tag to trigger PyPI publish

@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from agent_plugin_catalog.parser import (
+from cc_plugin_catalog.parser import (
     parse_frontmatter,
     parse_marketplace,
     parse_plugin_manifest,
