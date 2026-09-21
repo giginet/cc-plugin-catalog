@@ -21,7 +21,7 @@
         <div class="header-inner">
             <a href="{% block home_href %}index.html{% endblock %}" class="header-title">
                 {% if logo %}<img src="{% block logo_path %}static/{{ logo }}{% endblock %}" alt="" class="header-logo">{% else %}<span class="brand-mark" aria-hidden="true">&gt;_</span>{% endif %}
-                <span>agent<span class="brand-muted"> / catalog</span></span>
+                <span>cc<span class="brand-muted"> / catalog</span></span>
             </a>
             <span class="header-divider" aria-hidden="true">/</span>
             <span class="workspace-name">{{ marketplace.title }}</span>
@@ -53,7 +53,7 @@
     </div>
     <footer class="site-footer">
         <span><span class="status-dot" aria-hidden="true"></span> Static catalog <span class="footer-separator">/</span> {{ marketplace.plugins | length }} plugins</span>
-        <span class="footer-powered">Built with <a href="https://github.com/giginet/agent-plugin-catalog">agent-plugin-catalog</a></span>
+        <span class="footer-powered">Built with <a href="https://github.com/giginet/cc-plugin-catalog">cc-plugin-catalog</a></span>
     </footer>
     {% block scripts %}{% endblock %}
 </body>

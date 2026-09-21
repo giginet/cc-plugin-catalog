@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from agent_plugin_catalog.builder import (
+from cc_plugin_catalog.builder import (
     RepositoryNotDetectedError,
     _extract_repo_id,
     _get_repo_base_url,
@@ -126,7 +126,7 @@ class TestGetRepoBaseUrl:
         import subprocess
 
         result = subprocess.CompletedProcess(args=[], returncode=0, stdout=f"{url}\n")
-        return patch("agent_plugin_catalog.builder.subprocess.run", return_value=result)
+        return patch("cc_plugin_catalog.builder.subprocess.run", return_value=result)
 
     def test_github_ssh_url(self, tmp_path: Path) -> None:
         with self._mock_git_remote("git@github.com:owner/repo.git"):
@@ -169,7 +169,7 @@ class TestGetRepoBaseUrl:
         monkeypatch.setenv("GITHUB_REPOSITORY", "owner/repo")
         monkeypatch.delenv("GITHUB_SERVER_URL", raising=False)
         with patch(
-            "agent_plugin_catalog.builder.subprocess.run",
+            "cc_plugin_catalog.builder.subprocess.run",
             side_effect=FileNotFoundError,
         ):
             assert _get_repo_base_url(tmp_path) == "https://github.com/owner/repo"
@@ -181,7 +181,7 @@ class TestGetRepoBaseUrl:
         monkeypatch.setenv("GITHUB_REPOSITORY", "owner/repo")
         monkeypatch.setenv("GITHUB_SERVER_URL", "https://ghe.example.com")
         with patch(
-            "agent_plugin_catalog.builder.subprocess.run",
+            "cc_plugin_catalog.builder.subprocess.run",
             side_effect=FileNotFoundError,
         ):
             assert _get_repo_base_url(tmp_path) == "https://ghe.example.com/owner/repo"
@@ -190,7 +190,7 @@ class TestGetRepoBaseUrl:
         """Returns None when git is unavailable and no env vars are set."""
         monkeypatch.delenv("GITHUB_REPOSITORY", raising=False)
         with patch(
-            "agent_plugin_catalog.builder.subprocess.run",
+            "cc_plugin_catalog.builder.subprocess.run",
             side_effect=FileNotFoundError,
         ):
             assert _get_repo_base_url(tmp_path) is None
@@ -251,7 +251,7 @@ class TestBuildSiteRepositoryId:
     ) -> None:
         """build_site raises UsageError when repository cannot be resolved."""
         with (
-            patch("agent_plugin_catalog.builder._get_repo_base_url", return_value=None),
+            patch("cc_plugin_catalog.builder._get_repo_base_url", return_value=None),
             pytest.raises(RepositoryNotDetectedError, match="Could not detect"),
         ):
             build_site(sample_marketplace_path, tmp_path)
@@ -260,9 +260,7 @@ class TestBuildSiteRepositoryId:
         self, sample_marketplace_path: Path, tmp_path: Path
     ) -> None:
         """build_site succeeds with --marketplace-repository when no git remote."""
-        with patch(
-            "agent_plugin_catalog.builder._get_repo_base_url", return_value=None
-        ):
+        with patch("cc_plugin_catalog.builder._get_repo_base_url", return_value=None):
             build_site(
                 sample_marketplace_path,
                 tmp_path,
@@ -275,7 +273,7 @@ class TestBuildSiteRepositoryId:
     ) -> None:
         """build_site auto-detects GHE HTTPS remote as full URL."""
         with patch(
-            "agent_plugin_catalog.builder._get_repo_base_url",
+            "cc_plugin_catalog.builder._get_repo_base_url",
             return_value="https://my-git-server.com/owner/repo",
         ):
             build_site(sample_marketplace_path, tmp_path)
