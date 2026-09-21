@@ -98,7 +98,7 @@ permissions:
 
 jobs:
   deploy:
-    uses: giginet/agent-plugin-catalog/.github/workflows/build-pages.yml@v1
+    uses: giginet/agent-plugin-catalog/.github/workflows/build-pages.yml@v2
     # Optional: customize with inputs
     # with:
     #   base-url: "https://example.github.io/my-marketplace"  # Enables OGP meta tags
@@ -124,7 +124,7 @@ All inputs are optional.
 # Example with optional inputs
 jobs:
   deploy:
-    uses: giginet/agent-plugin-catalog/.github/workflows/build-pages.yml@v1
+    uses: giginet/agent-plugin-catalog/.github/workflows/build-pages.yml@v2
     with:
       base-url: "https://example.github.io/my-marketplace"
       logo: "assets/logo.png"
