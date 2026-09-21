@@ -1,4 +1,4 @@
-"""CLI entry point for cc-plugin-catalog."""
+"""CLI entry point for agent-plugin-catalog."""
 
 from __future__ import annotations
 
@@ -38,6 +38,12 @@ def _add_common_options(parser: argparse.ArgumentParser) -> None:
         help="Path to a logo image to display in the header.",
     )
     parser.add_argument(
+        "--marketplace-format",
+        choices=("auto", "claude", "codex"),
+        default="auto",
+        help="Marketplace format (auto prefers Codex when both manifests exist).",
+    )
+    parser.add_argument(
         "--marketplace-repository",
         default="",
         help="Marketplace repo identifier for install commands (e.g. owner/repo).",
@@ -62,8 +68,9 @@ def _do_build(args: argparse.Namespace) -> None:
             base_url=args.base_url or None,
             logo=logo_path,
             marketplace_repository=marketplace_repository,
+            marketplace_format=args.marketplace_format,
         )
-    except RepositoryNotDetectedError as e:
+    except (RepositoryNotDetectedError, FileNotFoundError, ValueError) as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(2)
     print(f"Site generated at {output}")
@@ -98,8 +105,8 @@ def _cmd_preview(args: argparse.Namespace) -> None:
 def main(argv: list[str] | None = None) -> None:
     """CLI entry point."""
     parser = argparse.ArgumentParser(
-        prog="cc-plugin-catalog",
-        description="Static site generator for Claude Code Plugin Marketplaces.",
+        prog="agent-plugin-catalog",
+        description="Generate static catalogs for Claude Code and Codex marketplaces.",
     )
     parser.add_argument(
         "--version", action="version", version=f"%(prog)s {__version__}"

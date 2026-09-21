@@ -1,16 +1,18 @@
-# cc-plugin-catalog
+# agent-plugin-catalog
 
-[![PyPI](https://img.shields.io/pypi/v/cc-plugin-catalog?style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/cc-plugin-catalog/)
-[![Python](https://img.shields.io/pypi/pyversions/cc-plugin-catalog?style=flat-square&logo=python&logoColor=white)](https://pypi.org/project/cc-plugin-catalog/)
-[![License](https://img.shields.io/github/license/giginet/cc-plugin-catalog?style=flat-square)](https://github.com/giginet/cc-plugin-catalog/blob/main/LICENSE)
-[![CI](https://img.shields.io/github/actions/workflow/status/giginet/cc-plugin-catalog/ci.yml?branch=main&label=CI&style=flat-square&logo=githubactions&logoColor=white)](https://github.com/giginet/cc-plugin-catalog/actions/workflows/ci.yml)
-[![PyPI Downloads](https://img.shields.io/pypi/dm/cc-plugin-catalog?style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/cc-plugin-catalog/)
-[![GitHub Stars](https://img.shields.io/github/stars/giginet/cc-plugin-catalog?style=social)](https://github.com/giginet/cc-plugin-catalog)
-[![GitHub Issues](https://img.shields.io/github/issues/giginet/cc-plugin-catalog?style=social&logo=github)](https://github.com/giginet/cc-plugin-catalog/issues)
+[![PyPI](https://img.shields.io/pypi/v/agent-plugin-catalog?style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/agent-plugin-catalog/)
+[![Python](https://img.shields.io/pypi/pyversions/agent-plugin-catalog?style=flat-square&logo=python&logoColor=white)](https://pypi.org/project/agent-plugin-catalog/)
+[![License](https://img.shields.io/github/license/giginet/agent-plugin-catalog?style=flat-square)](https://github.com/giginet/agent-plugin-catalog/blob/main/LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/giginet/agent-plugin-catalog/ci.yml?branch=main&label=CI&style=flat-square&logo=githubactions&logoColor=white)](https://github.com/giginet/agent-plugin-catalog/actions/workflows/ci.yml)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/agent-plugin-catalog?style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/agent-plugin-catalog/)
+[![GitHub Stars](https://img.shields.io/github/stars/giginet/agent-plugin-catalog?style=social)](https://github.com/giginet/agent-plugin-catalog)
+[![GitHub Issues](https://img.shields.io/github/issues/giginet/agent-plugin-catalog?style=social&logo=github)](https://github.com/giginet/agent-plugin-catalog/issues)
 
-Static site generator for [Claude Code Plugin Marketplace](https://code.claude.com/docs/en/plugin-marketplaces) repositories.
+Static site generator for [Claude Code Plugin Marketplace](https://code.claude.com/docs/en/plugin-marketplaces) and [Codex Plugin Marketplace](https://developers.openai.com/plugins/build/plugins) repositories.
 
-![cc-plugin-catalog screenshot](docs/sample.png)
+Formerly `cc-plugin-catalog`. The package, CLI, and Python module are now named `agent-plugin-catalog`, `agent-plugin-catalog`, and `agent_plugin_catalog` respectively. Update installation commands, imports, and reusable workflow references when migrating.
+
+![agent-plugin-catalog screenshot](docs/sample.png)
 
 Generate a beautiful, responsive catalog page from your marketplace's `marketplace.json` and `plugin.json` files — and deploy it to GitHub Pages with a single reusable workflow.
 
@@ -19,7 +21,8 @@ Generate a beautiful, responsive catalog page from your marketplace's `marketpla
 ## Features
 
 - **Plugin catalog pages** — Grid index page with plugin cards and individual detail pages
-- **Component detection** — Automatically scans and displays Skills, Commands, Agents, Hooks, MCP Servers, and LSP Servers
+- **Claude Code & Codex** — Auto-detects marketplace format and shows the appropriate installation instructions
+- **Component detection** — Automatically scans and displays Skills, Commands, Agents, Hooks, MCP Servers, LSP Servers, and Apps
 - **Search & filter** — Incremental search with inline category, tag, and tool type filters
 - **Markdown rendering** — README and LICENSE files rendered as HTML
 - **Dark / Light mode** — Toggle with `prefers-color-scheme` detection and `localStorage` persistence
@@ -33,23 +36,42 @@ Generate a beautiful, responsive catalog page from your marketplace's `marketpla
 No installation required — just use [`uvx`](https://docs.astral.sh/uv/):
 
 ```bash
-uvx cc-plugin-catalog preview /path/to/marketplace-repo
+uvx agent-plugin-catalog preview /path/to/marketplace-repo
 ```
 
 Open http://localhost:8000/ in your browser. Press `Ctrl+C` to stop.
 
 ```bash
 # Custom port and output directory
-uvx cc-plugin-catalog preview /path/to/marketplace-repo -p 3000 -o _site
+uvx agent-plugin-catalog preview /path/to/marketplace-repo -p 3000 -o _site
 ```
 
 ### Build static files
 
 ```bash
-uvx cc-plugin-catalog build /path/to/marketplace-repo -o _site
+uvx agent-plugin-catalog build /path/to/marketplace-repo -o _site
 ```
 
 This generates a fully static site in `_site/` that can be deployed anywhere.
+
+## Supported marketplace formats
+
+| Format | Marketplace manifest | Plugin manifest |
+|--------|----------------------|-----------------|
+| Claude Code | `.claude-plugin/marketplace.json` | `.claude-plugin/plugin.json` |
+| Codex | `.agents/plugins/marketplace.json` | `plugin.json`, `.codex-plugin/plugin.json`, or `.claude-plugin/plugin.json` |
+
+Auto-detection prefers the Codex marketplace when both files exist. To choose explicitly, use `--marketplace-format claude` or `--marketplace-format codex` with either `build` or `preview`:
+
+```bash
+uvx agent-plugin-catalog build /path/to/marketplace-repo --marketplace-format codex -o _site
+```
+
+Codex marketplaces may omit `owner` and use `interface.displayName` for their title. Local sources can use `{"source": "local", "path": "./plugins/my-plugin"}` or a plain `"./plugins/my-plugin"` path, relative to the repository root. External sources are listed using marketplace metadata; their repositories are not downloaded.
+
+For Codex plugins, the catalog uses `interface.displayName` and presentation metadata while keeping plugin identifiers in URLs. It reads declared Skills, MCP, and Apps paths in addition to conventional directories. Portable root `plugin.json` manifests use `skills/` and `mcp.json`, with OpenAI presentation settings from `extensions.com.openai` or the compatibility overlay.
+
+Codex detail pages show `codex plugin marketplace add` and direct users to select the plugin in the app. Entries marked `NOT_AVAILABLE` show an availability message instead of installation instructions.
 
 ## Deploy to GitHub Pages
 
@@ -76,7 +98,7 @@ permissions:
 
 jobs:
   deploy:
-    uses: giginet/cc-plugin-catalog/.github/workflows/build-pages.yml@v1
+    uses: giginet/agent-plugin-catalog/.github/workflows/build-pages.yml@v1
     # Optional: customize with inputs
     # with:
     #   base-url: "https://example.github.io/my-marketplace"  # Enables OGP meta tags
@@ -91,17 +113,18 @@ All inputs are optional.
 
 | Input | Default | Description |
 |-------|---------|-------------|
-| `catalog-ref` | `""` | Install `cc-plugin-catalog` from a git ref (branch, tag, or SHA) instead of PyPI |
+| `catalog-ref` | `""` | Install `agent-plugin-catalog` from a git ref (branch, tag, or SHA) instead of PyPI |
 | `output-dir` | `"_site"` | Output directory for generated files |
 | `base-url` | `""` | Base URL for OGP meta tags. OGP tags are only generated when this is set. |
 | `logo` | `""` | Path to a logo image in the repository (e.g. `assets/logo.png`) |
 | `marketplace-repository` | `""` | Marketplace repo identifier for install commands. `owner/repo` for GitHub.com, full URL for GitHub Enterprise (e.g. `https://my-git-server.com/owner/repo`). Auto-detected from git remote if not set. |
+| `marketplace-format` | `"auto"` | Select `auto`, `claude`, or `codex`. Auto-detection prefers Codex when both manifests exist. |
 
 ```yaml
 # Example with optional inputs
 jobs:
   deploy:
-    uses: giginet/cc-plugin-catalog/.github/workflows/build-pages.yml@v1
+    uses: giginet/agent-plugin-catalog/.github/workflows/build-pages.yml@v1
     with:
       base-url: "https://example.github.io/my-marketplace"
       logo: "assets/logo.png"
@@ -133,8 +156,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - run: uv tool install cc-plugin-catalog
-      - run: cc-plugin-catalog build . -o _site --base-url "https://example.github.io/my-marketplace" --logo assets/logo.png --marketplace-repository "https://my-git-server.com/owner/my-marketplace"
+      - run: uv tool install agent-plugin-catalog
+      - run: agent-plugin-catalog build . -o _site --base-url "https://example.github.io/my-marketplace" --logo assets/logo.png --marketplace-repository "https://my-git-server.com/owner/my-marketplace"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
@@ -147,7 +170,7 @@ jobs:
 
 ## Supported Plugin Components
 
-cc-plugin-catalog detects and displays the following component types from plugin directories:
+agent-plugin-catalog detects and displays the following component types from plugin directories:
 
 | Component | Source | Detected From |
 |-----------|--------|---------------|
@@ -157,12 +180,15 @@ cc-plugin-catalog detects and displays the following component types from plugin
 | **Hooks** | `hooks/hooks.json` | Event names, matchers |
 | **MCP Servers** | `.mcp.json` | Server names, commands |
 | **LSP Servers** | `.lsp.json` | Language names, commands |
+| **Apps** | `.app.json` or manifest-declared path | Integration names and IDs |
+
+Codex MCP definitions may also be inline in the manifest or use a custom file path. HTTP server URLs are displayed alongside command-based servers.
 
 ## Development
 
 ```bash
-git clone https://github.com/giginet/cc-plugin-catalog.git
-cd cc-plugin-catalog
+git clone https://github.com/giginet/agent-plugin-catalog.git
+cd agent-plugin-catalog
 uv sync --dev
 ```
 

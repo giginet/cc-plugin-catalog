@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from cc_plugin_catalog.models import (
+from agent_plugin_catalog.models import (
     AgentInfo,
     Author,
     CommandInfo,
@@ -12,7 +12,7 @@ from cc_plugin_catalog.models import (
     PluginComponents,
     SkillInfo,
 )
-from cc_plugin_catalog.renderer import (
+from agent_plugin_catalog.renderer import (
     copy_static,
     render_category_page,
     render_index,

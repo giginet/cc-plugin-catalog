@@ -7,14 +7,16 @@ from pathlib import Path
 
 import yaml
 
-from cc_plugin_catalog.markdown_utils import render_markdown
-from cc_plugin_catalog.models import (
+from agent_plugin_catalog.markdown_utils import render_markdown
+from agent_plugin_catalog.models import (
     AgentInfo,
+    AppEntry,
     CommandInfo,
     HookEntry,
     LspServerEntry,
     McpServerEntry,
     PluginComponents,
+    PluginManifest,
     SkillInfo,
 )
 
@@ -57,22 +59,40 @@ def _parse_frontmatter(text: str) -> tuple[dict, str]:
     return metadata, body
 
 
-def scan_skills(plugin_path: Path) -> list[SkillInfo]:
+def _component_path(plugin_path: Path, relative_path: str) -> Path:
+    """Resolve component paths without reading files outside the plugin."""
+    path = (plugin_path / relative_path).resolve()
+    if not path.is_relative_to(plugin_path.resolve()):
+        raise ValueError(f"Component path must stay inside the plugin: {relative_path}")
+    return path
+
+
+def scan_skills(
+    plugin_path: Path, extra_path: str | list[str] | None = None
+) -> list[SkillInfo]:
     """Scan skills/*/SKILL.md for skill definitions."""
-    skills_dir = plugin_path / "skills"
-    if not skills_dir.is_dir():
-        return []
+    roots = [_component_path(plugin_path, "skills")]
+    extras = [extra_path] if isinstance(extra_path, str) else extra_path or []
+    roots.extend(_component_path(plugin_path, path) for path in extras)
+    files: set[Path] = set()
+    for root in roots:
+        if root.is_file() and root.name == "SKILL.md":
+            files.add(root)
+        elif (root / "SKILL.md").is_file():
+            files.add(root / "SKILL.md")
+        elif root.is_dir():
+            files.update(root.glob("*/SKILL.md"))
 
     results: list[SkillInfo] = []
-    for skill_dir in sorted(skills_dir.iterdir()):
-        skill_file = skill_dir / "SKILL.md"
-        if skill_dir.is_dir() and skill_file.exists():
+    for skill_file in sorted(files):
+        skill_file = _component_path(plugin_path, str(skill_file))
+        if skill_file.is_file():
             meta, body = _parse_frontmatter(skill_file.read_text())
             results.append(
                 SkillInfo(
-                    name=skill_dir.name,
+                    name=skill_file.parent.name,
                     description=meta.get("description"),
-                    source_path=str(skill_file.relative_to(plugin_path)),
+                    source_path=str(skill_file.relative_to(plugin_path.resolve())),
                     frontmatter=meta,
                     body_html=render_markdown(body) if body else None,
                 )
@@ -146,22 +166,44 @@ def scan_hooks(plugin_path: Path) -> list[HookEntry]:
     return results
 
 
-def scan_mcp_servers(plugin_path: Path) -> list[McpServerEntry]:
+def scan_mcp_servers(
+    plugin_path: Path, extra: str | list[str] | dict | None = None
+) -> list[McpServerEntry]:
     """Read .mcp.json and extract MCP server entries."""
-    mcp_file = plugin_path / ".mcp.json"
-    if not mcp_file.exists():
-        return []
-
-    data = json.loads(mcp_file.read_text())
-    servers = data.get("mcpServers", {})
+    servers: dict = {}
+    paths = [".mcp.json"]
+    if isinstance(extra, str):
+        paths.append(extra)
+    elif isinstance(extra, list):
+        paths.extend(extra)
+    for relative_path in paths:
+        mcp_file = _component_path(plugin_path, relative_path)
+        if mcp_file.is_file():
+            data = json.loads(mcp_file.read_text())
+            servers.update(data.get("mcpServers", {}))
+    if isinstance(extra, dict):
+        servers.update(extra.get("mcpServers", extra))
 
     return [
         McpServerEntry(
             name=name,
             command=config.get("command", ""),
             args=config.get("args", []),
+            url=config.get("url"),
         )
         for name, config in sorted(servers.items())
+    ]
+
+
+def scan_apps(plugin_path: Path, extra_path: str | None = None) -> list[AppEntry]:
+    """Read the app integrations declared by a Codex plugin."""
+    apps_file = _component_path(plugin_path, extra_path or ".app.json")
+    if not apps_file.is_file():
+        return []
+    data = json.loads(apps_file.read_text())
+    return [
+        AppEntry(name=name, id=config.get("id", ""))
+        for name, config in sorted(data.get("apps", {}).items())
     ]
 
 
@@ -199,13 +241,18 @@ def read_license(plugin_path: Path) -> str | None:
     return None
 
 
-def scan_plugin(plugin_path: Path) -> PluginComponents:
+def scan_plugin(
+    plugin_path: Path, manifest: PluginManifest | None = None
+) -> PluginComponents:
     """Scan a plugin directory and return all discovered components."""
     return PluginComponents(
-        skills=scan_skills(plugin_path),
+        skills=scan_skills(plugin_path, manifest.skills if manifest else None),
         commands=scan_commands(plugin_path),
         agents=scan_agents(plugin_path),
         hooks=scan_hooks(plugin_path),
-        mcp_servers=scan_mcp_servers(plugin_path),
+        mcp_servers=scan_mcp_servers(
+            plugin_path, manifest.mcp_servers if manifest else None
+        ),
         lsp_servers=scan_lsp_servers(plugin_path),
+        apps=scan_apps(plugin_path, manifest.apps if manifest else None),
     )

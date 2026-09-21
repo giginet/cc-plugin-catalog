@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}{{ plugin.name }} - {{ marketplace.name }}{% endblock %}
-{% block og_title %}{{ plugin.name }} - {{ marketplace.name }}{% endblock %}
-{% block og_description %}{{ plugin.description or (plugin.name ~ ' plugin') }}{% endblock %}
+{% block title %}{{ plugin.title }} - {{ marketplace.title }}{% endblock %}
+{% block og_title %}{{ plugin.title }} - {{ marketplace.title }}{% endblock %}
+{% block og_description %}{{ plugin.description or (plugin.title ~ ' plugin') }}{% endblock %}
 {% block og_type %}article{% endblock %}
 {% block og_url %}<meta property="og:url" content="{{ page_url }}">{% endblock %}
 {% block og_image %}{{ base_url }}/static/{{ logo }}{% endblock %}
-{% block meta_description %}{{ plugin.description or (plugin.name ~ ' plugin') }}{% endblock %}
+{% block meta_description %}{{ plugin.description or (plugin.title ~ ' plugin') }}{% endblock %}
 {% block css_path %}../../static/style.css{% endblock %}
 {% block js_path %}../../static/theme.js{% endblock %}
 {% block home_href %}../../index.html{% endblock %}
@@ -16,11 +16,11 @@
 <nav class="breadcrumb">
     <a href="../../index.html">Home</a>
     <span class="breadcrumb-sep">&rsaquo;</span>
-    <span>{{ plugin.name }}</span>
+    <span>{{ plugin.title }}</span>
 </nav>
 
 <section class="plugin-header">
-    <h1>{{ plugin.name }}</h1>
+    <h1>{{ plugin.title }}</h1>
     {% if plugin.description %}
     <p class="plugin-description">{{ plugin.description }}</p>
     {% endif %}
@@ -68,6 +68,17 @@
 
 <section class="install-section">
     <h2>Installation</h2>
+    {% if marketplace.format == 'codex' %}
+    {% if plugin.installation == 'NOT_AVAILABLE' %}
+    <p>This plugin is not available for installation in this marketplace.</p>
+    {% else %}
+    <p>Add the marketplace, then select {{ plugin.title }} in the Codex app's plugin directory.</p>
+    <div class="code-block">
+        <code>codex plugin marketplace add {{ (marketplace.repository_id or marketplace.name) | shellquote }}</code>
+        <button type="button" class="copy-btn" aria-label="Copy to clipboard">Copy</button>
+    </div>
+    {% endif %}
+    {% else %}
     <div class="install-tabs">
         <button type="button" class="install-tab active" data-tab="claude-code">Claude Code</button>
         <button type="button" class="install-tab" data-tab="bash">Bash</button>
@@ -92,6 +103,7 @@
             <button type="button" class="copy-btn" aria-label="Copy to clipboard">Copy</button>
         </div>
     </div>
+    {% endif %}
 </section>
 
 <script>
@@ -243,13 +255,13 @@
     <h2><span class="badge badge-mcp">MCP Servers</span></h2>
     <table class="component-table">
         <thead>
-            <tr><th>Name</th><th>Command</th></tr>
+            <tr><th>Name</th><th>Command / URL</th></tr>
         </thead>
         <tbody>
             {% for mcp in plugin.components.mcp_servers %}
             <tr>
                 <td><code>{{ mcp.name }}</code></td>
-                <td><code>{{ mcp.command }}</code></td>
+                <td><code>{{ mcp.command or mcp.url or "" }}</code></td>
             </tr>
             {% endfor %}
         </tbody>
@@ -270,6 +282,20 @@
                 <td><code>{{ lsp.name }}</code></td>
                 <td><code>{{ lsp.command }}</code></td>
             </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% if plugin.components.apps %}
+<section class="component-section">
+    <h2><span class="badge badge-apps">Apps</span></h2>
+    <table class="component-table">
+        <thead><tr><th>Name</th><th>ID</th></tr></thead>
+        <tbody>
+            {% for app in plugin.components.apps %}
+            <tr><td>{{ app.name }}</td><td><code>{{ app.id }}</code></td></tr>
             {% endfor %}
         </tbody>
     </table>

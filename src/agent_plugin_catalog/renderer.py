@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shlex
 import shutil
 from pathlib import Path
 
@@ -13,10 +14,12 @@ TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 
 def _create_env() -> Environment:
-    return Environment(
-        loader=PackageLoader("cc_plugin_catalog", "templates"),
+    env = Environment(
+        loader=PackageLoader("agent_plugin_catalog", "templates"),
         autoescape=True,
     )
+    env.filters["shellquote"] = shlex.quote
+    return env
 
 
 def _collect_categories(plugins: list[Plugin]) -> list[str]:
@@ -42,6 +45,7 @@ _TOOL_TYPES = [
     {"key": "hooks", "label": "Hooks", "css_class": "hooks"},
     {"key": "mcp", "label": "MCP", "css_class": "mcp"},
     {"key": "lsp", "label": "LSP", "css_class": "lsp"},
+    {"key": "apps", "label": "Apps", "css_class": "apps"},
 ]
 
 
@@ -61,6 +65,8 @@ def _collect_tool_types(plugins: list[Plugin]) -> list[dict[str, str]]:
             present.add("mcp")
         if c.lsp_servers:
             present.add("lsp")
+        if c.apps:
+            present.add("apps")
     return [t for t in _TOOL_TYPES if t["key"] in present]
 
 
