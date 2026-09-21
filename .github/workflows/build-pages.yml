@@ -5,7 +5,7 @@ on:
       catalog-ref:
         type: string
         default: ""
-        description: "Install cc-plugin-catalog from a git ref (branch, tag, or SHA) instead of PyPI"
+        description: "Install agent-plugin-catalog from a git ref (branch, tag, or SHA) instead of PyPI"
       output-dir:
         type: string
         default: "_site"
@@ -22,6 +22,10 @@ on:
         type: string
         default: ""
         description: "Marketplace repo identifier for install commands (e.g. owner/repo). Auto-detected from git remote if not set."
+      marketplace-format:
+        type: string
+        default: "auto"
+        description: "Marketplace format: auto (prefers Codex), claude, or codex"
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -38,10 +42,20 @@ jobs:
       - name: Install git
         if: inputs.catalog-ref != ''
         run: apt-get update -qq && apt-get install -y -qq git > /dev/null
-      - name: Install cc-plugin-catalog
-        run: pip install --quiet ${{ inputs.catalog-ref && format('git+https://github.com/giginet/cc-plugin-catalog@{0}', inputs.catalog-ref) || 'cc-plugin-catalog' }}
+      - name: Install agent-plugin-catalog
+        run: pip install --quiet ${{ inputs.catalog-ref && format('git+https://github.com/giginet/agent-plugin-catalog@{0}', inputs.catalog-ref) || 'agent-plugin-catalog' }}
       - name: Build site
-        run: cc-plugin-catalog build . -o ${{ inputs.output-dir }}${{ inputs.base-url && format(' --base-url {0}', inputs.base-url) || '' }}${{ inputs.logo && format(' --logo {0}', inputs.logo) || '' }}${{ inputs.marketplace-repository && format(' --marketplace-repository {0}', inputs.marketplace-repository) || '' }}
+        env:
+          CATALOG_OUTPUT: ${{ inputs.output-dir }}
+          CATALOG_BASE_URL: ${{ inputs.base-url }}
+          CATALOG_LOGO: ${{ inputs.logo }}
+          CATALOG_REPOSITORY: ${{ inputs.marketplace-repository }}
+          CATALOG_FORMAT: ${{ inputs.marketplace-format }}
+        run: >-
+          agent-plugin-catalog build . -o "$CATALOG_OUTPUT"
+          --base-url "$CATALOG_BASE_URL" --logo "$CATALOG_LOGO"
+          --marketplace-repository "$CATALOG_REPOSITORY"
+          --marketplace-format "$CATALOG_FORMAT"
       - uses: actions/upload-pages-artifact@v5
         with:
           path: ${{ inputs.output-dir }}

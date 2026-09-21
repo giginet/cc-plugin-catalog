@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ marketplace.name }} - Plugin Marketplace{% endblock %}
+{% block title %}{{ marketplace.title }} - Plugin Marketplace{% endblock %}
 
 {% block content %}
 <section class="marketplace-info">
@@ -8,7 +8,7 @@
     <p class="marketplace-description">{{ marketplace.description }}</p>
     {% endif %}
     <div class="marketplace-meta">
-        <span class="meta-item">Owner: <strong>{{ marketplace.owner.name }}</strong></span>
+        {% if marketplace.owner %}<span class="meta-item">Owner: <strong>{{ marketplace.owner.name }}</strong></span>{% endif %}
         <span class="meta-item">Plugins: <strong>{{ marketplace.plugins | length }}</strong></span>
     </div>
 </section>
@@ -46,10 +46,10 @@
 
 <section class="plugin-grid" id="plugin-grid">
     {% for plugin in marketplace.plugins %}
-    <article class="plugin-card" data-name="{{ plugin.name }}" data-description="{{ plugin.description or '' }}" data-category="{{ plugin.category or '' }}" data-tags="{{ plugin.tags | join(' ') }}" data-keywords="{{ plugin.keywords | join(' ') }}" data-tools="{% if plugin.components.skills %}skills {% endif %}{% if plugin.components.commands %}commands {% endif %}{% if plugin.components.agents %}agents {% endif %}{% if plugin.components.hooks %}hooks {% endif %}{% if plugin.components.mcp_servers %}mcp {% endif %}{% if plugin.components.lsp_servers %}lsp {% endif %}">
+    <article class="plugin-card" data-name="{{ plugin.name }} {{ plugin.title }}" data-description="{{ plugin.description or '' }}" data-category="{{ plugin.category or '' }}" data-tags="{{ plugin.tags | join(' ') }}" data-keywords="{{ plugin.keywords | join(' ') }}" data-tools="{% if plugin.components.skills %}skills {% endif %}{% if plugin.components.commands %}commands {% endif %}{% if plugin.components.agents %}agents {% endif %}{% if plugin.components.hooks %}hooks {% endif %}{% if plugin.components.mcp_servers %}mcp {% endif %}{% if plugin.components.lsp_servers %}lsp {% endif %}{% if plugin.components.apps %}apps {% endif %}">
         <a href="plugins/{{ plugin.name }}/index.html" class="card-link">
             <div class="card-body">
-                <h2 class="card-title">{{ plugin.name }}</h2>
+                <h2 class="card-title">{{ plugin.title }}</h2>
                 {% if plugin.description %}
                 <p class="card-description">{{ plugin.description }}</p>
                 {% endif %}
@@ -74,6 +74,9 @@
                     {% endif %}
                     {% if plugin.components.lsp_servers %}
                     <span class="badge badge-lsp">LSP</span>
+                    {% endif %}
+                    {% if plugin.components.apps %}
+                    <span class="badge badge-apps">Apps</span>
                     {% endif %}
                 </div>
             </div>

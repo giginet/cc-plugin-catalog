@@ -1,8 +1,11 @@
-"""Data models for Claude Code Plugin Marketplace."""
+"""Data models for Claude Code and Codex Plugin Marketplace."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Literal
+
+MarketplaceFormat = Literal["auto", "claude", "codex"]
 
 
 @dataclass
@@ -64,6 +67,13 @@ class McpServerEntry:
     name: str
     command: str = ""
     args: list[str] = field(default_factory=list)
+    url: str | None = None
+
+
+@dataclass
+class AppEntry:
+    name: str
+    id: str = ""
 
 
 @dataclass
@@ -81,6 +91,7 @@ class PluginComponents:
     hooks: list[HookEntry] = field(default_factory=list)
     mcp_servers: list[McpServerEntry] = field(default_factory=list)
     lsp_servers: list[LspServerEntry] = field(default_factory=list)
+    apps: list[AppEntry] = field(default_factory=list)
 
 
 @dataclass
@@ -93,6 +104,10 @@ class PluginManifest:
     repository: str | None = None
     license: str | None = None
     keywords: list[str] = field(default_factory=list)
+    display_name: str | None = None
+    skills: str | list[str] | None = None
+    mcp_servers: str | list[str] | dict | None = None
+    apps: str | None = None
 
 
 @dataclass
@@ -108,6 +123,7 @@ class MarketplacePluginEntry:
     keywords: list[str] = field(default_factory=list)
     category: str | None = None
     tags: list[str] = field(default_factory=list)
+    installation: str | None = None
 
 
 @dataclass
@@ -128,21 +144,35 @@ class Plugin:
     readme_html: str | None = None
     license_text: str | None = None
     is_local: bool = False
+    display_name: str | None = None
+    installation: str | None = None
+
+    @property
+    def title(self) -> str:
+        return self.display_name or self.name
 
 
 @dataclass
 class MarketplaceConfig:
     name: str
-    owner: Owner
+    owner: Owner | None = None
     metadata: MarketplaceMetadata | None = None
     plugins: list[MarketplacePluginEntry] = field(default_factory=list)
+    format: MarketplaceFormat = "claude"
+    display_name: str | None = None
 
 
 @dataclass
 class Marketplace:
     name: str
-    owner: Owner
+    owner: Owner | None = None
     description: str | None = None
     repository_url: str | None = None
     repository_id: str | None = None
     plugins: list[Plugin] = field(default_factory=list)
+    format: MarketplaceFormat = "claude"
+    display_name: str | None = None
+
+    @property
+    def title(self) -> str:
+        return self.display_name or self.name

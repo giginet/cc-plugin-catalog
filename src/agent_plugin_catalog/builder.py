@@ -9,7 +9,7 @@ import subprocess
 from pathlib import Path
 
 from .markdown_utils import render_markdown
-from .models import Marketplace, Plugin
+from .models import Marketplace, MarketplaceFormat, Plugin
 from .parser import parse_marketplace, parse_plugin_manifest
 from .renderer import render_site
 from .scanner import read_license, read_readme, scan_plugin
@@ -21,8 +21,15 @@ class RepositoryNotDetectedError(Exception):
 
 def _resolve_plugin_path(repo_path: Path, source: str | dict) -> Path | None:
     """Resolve a plugin source to a local path, or None if external."""
+    if isinstance(source, dict) and source.get("source") == "local":
+        source = source.get("path", "")
     if isinstance(source, str) and source.startswith("./"):
-        return repo_path / source
+        path = (repo_path / source).resolve()
+        if not path.is_relative_to(repo_path.resolve()):
+            raise ValueError(
+                f"Plugin source must stay inside the marketplace: {source}"
+            )
+        return path
     return None
 
 
@@ -71,6 +78,8 @@ def _build_source_url(
     branch: str,
 ) -> str | None:
     """Build a browsable URL for a plugin source."""
+    if isinstance(source, dict) and source.get("source") == "local":
+        source = source.get("path", "")
     if isinstance(source, str) and source.startswith("./"):
         if repo_base_url:
             path = source.lstrip("./")
@@ -141,12 +150,13 @@ def build_site(
     base_url: str | None = None,
     logo: Path | None = None,
     marketplace_repository: str | None = None,
+    marketplace_format: MarketplaceFormat = "auto",
 ) -> None:
     """Build the complete static site from a marketplace repository."""
     repo_path = repo_path.resolve()
     output_dir = output_dir.resolve()
 
-    config = parse_marketplace(repo_path)
+    config = parse_marketplace(repo_path, marketplace_format)
     repo_base_url = _get_repo_base_url(repo_path)
     branch = _get_default_branch(repo_path)
 
@@ -174,13 +184,15 @@ def build_site(
             source=entry.source,
             source_url=source_url,
             is_local=is_local,
+            installation=entry.installation,
         )
 
         if is_local and plugin_path is not None:
             # Merge with plugin.json (plugin.json takes priority)
-            manifest = parse_plugin_manifest(plugin_path)
+            manifest = parse_plugin_manifest(plugin_path, config.format)
             if manifest is not None:
                 plugin.description = manifest.description or plugin.description
+                plugin.display_name = manifest.display_name
                 plugin.version = manifest.version or plugin.version
                 plugin.author = manifest.author or plugin.author
                 plugin.homepage = manifest.homepage or plugin.homepage
@@ -192,7 +204,7 @@ def build_site(
                     plugin.keywords = manifest.keywords
 
             # Scan components
-            plugin.components = scan_plugin(plugin_path)
+            plugin.components = scan_plugin(plugin_path, manifest)
 
             # Read and render README
             readme_text = read_readme(plugin_path)
@@ -218,6 +230,8 @@ def build_site(
         repository_url=repo_base_url,
         repository_id=repository_id,
         plugins=plugins,
+        format=config.format,
+        display_name=config.display_name,
     )
 
     logo_filename: str | None = None

@@ -1,6 +1,6 @@
 """Tests for data models."""
 
-from cc_plugin_catalog.models import (
+from agent_plugin_catalog.models import (
     Author,
     Marketplace,
     MarketplaceConfig,

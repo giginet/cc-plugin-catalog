@@ -5,7 +5,7 @@ import urllib.request
 from pathlib import Path
 from unittest.mock import patch
 
-from cc_plugin_catalog.cli import main
+from agent_plugin_catalog.cli import main
 
 
 class TestBuildCommand:
@@ -14,7 +14,7 @@ class TestBuildCommand:
     ) -> None:
         output_dir = tmp_path / "output"
         with patch(
-            "cc_plugin_catalog.builder._get_repo_base_url",
+            "agent_plugin_catalog.builder._get_repo_base_url",
             return_value="https://github.com/test/repo",
         ):
             main(["build", str(sample_marketplace_path), "-o", str(output_dir)])
@@ -41,7 +41,7 @@ class TestPreviewCommand:
 
         # Build first so we can verify the server serves the right files
         with patch(
-            "cc_plugin_catalog.builder._get_repo_base_url",
+            "agent_plugin_catalog.builder._get_repo_base_url",
             return_value="https://github.com/test/repo",
         ):
             main(["build", str(sample_marketplace_path), "-o", str(output_dir)])

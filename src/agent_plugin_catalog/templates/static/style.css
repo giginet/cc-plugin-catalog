@@ -379,6 +379,11 @@ a:hover {
     color: #ffffff;
 }
 
+.badge-apps {
+    background: #6366f1;
+    color: #ffffff;
+}
+
 /* === Breadcrumb === */
 .breadcrumb {
     margin-bottom: 1.5rem;

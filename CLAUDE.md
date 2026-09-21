@@ -1,8 +1,9 @@
-# cc-plugin-catalog
+# agent-plugin-catalog
 
-Static site generator for Claude Code Plugin Marketplace repositories.
+Static site generator for Claude Code and Codex Plugin Marketplace repositories.
 
 - Spec: https://code.claude.com/docs/en/plugin-marketplaces
+- Codex spec: https://developers.openai.com/plugins/build/plugins
 - Official marketplace: https://github.com/anthropics/claude-plugins-official
 
 Use the official marketplace repo and docs as reference when developing.
@@ -10,9 +11,9 @@ Use the official marketplace repo and docs as reference when developing.
 ## Stack
 
 - Python 3.12, managed with uv
-- CLI: Click
+- CLI: argparse
 - Templates: Jinja2
-- Models: Pydantic
+- Models: dataclasses
 - Markdown: python-markdown
 
 ## Commands
@@ -33,5 +34,5 @@ uv run ty check src/          # Type check
 ## Release
 
 - Tag format: `X.Y.Z` (no `v` prefix, e.g. `1.0.0`)
-- Update version in both `pyproject.toml` and `src/cc_plugin_catalog/__init__.py`
+- Update version in both `pyproject.toml` and `src/agent_plugin_catalog/__init__.py`
 - Create a GitHub Release with the tag to trigger PyPI publish
