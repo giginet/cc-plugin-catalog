@@ -90,6 +90,18 @@ class TestRenderIndex:
         assert 'data-filter-value="ci"' in content
         assert "tag-filters" not in content
 
+    def test_tags_are_sorted_by_plugin_count(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        mp.plugins[0].tags.append("tool")
+        render_index(mp, tmp_path)
+        content = (tmp_path / "index.html").read_text()
+        cloud = content.split('class="tag-cloud"', 1)[1].split("</div>", 1)[0]
+        buttons = re.findall(r'data-filter-value="([^"]+)"[^>]*>(.*?)</button>', cloud)
+        assert buttons == [
+            ("tool", 'tool <span class="tag-count">2</span>'),
+            ("ci", 'ci <span class="tag-count">1</span>'),
+        ]
+
     def test_contains_tool_filter_buttons(self, tmp_path: Path) -> None:
         mp = _make_marketplace()
         render_index(mp, tmp_path)

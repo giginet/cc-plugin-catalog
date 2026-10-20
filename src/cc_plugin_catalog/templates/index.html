@@ -24,7 +24,7 @@
 <div class="sidebar-section tag-section">
     <div class="sidebar-label">Tags <span class="tag-total">{{ tags | length }}</span></div>
     <div class="tag-cloud" role="group" aria-label="Filter by tags">
-        {% for tag in tags %}<button type="button" class="tag-chip filter-btn" data-filter-type="tag" data-filter-value="{{ tag }}" aria-pressed="false">{{ tag }}</button>{% endfor %}
+        {% for tag, count in tags %}<button type="button" class="tag-chip filter-btn" data-filter-type="tag" data-filter-value="{{ tag }}" aria-pressed="false">{{ tag }} <span class="tag-count">{{ count }}</span></button>{% endfor %}
     </div>
 </div>
 {% endif %}

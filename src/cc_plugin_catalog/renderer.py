@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import shlex
 import shutil
+from collections import Counter
 from pathlib import Path
 
 from jinja2 import Environment, PackageLoader
@@ -44,12 +45,11 @@ def _collect_categories(plugins: list[Plugin]) -> list[str]:
     return sorted(cats)
 
 
-def _collect_tags(plugins: list[Plugin]) -> list[str]:
-    tags: set[str] = set()
-    for p in plugins:
-        for t in p.tags:
-            tags.add(t)
-    return sorted(tags)
+def _collect_tags(plugins: list[Plugin]) -> list[tuple[str, int]]:
+    counts = Counter(tag for plugin in plugins for tag in set(plugin.tags))
+    return sorted(
+        counts.items(), key=lambda item: (-item[1], item[0].casefold(), item[0])
+    )
 
 
 _TOOL_TYPES = [

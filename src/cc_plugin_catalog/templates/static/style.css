@@ -79,6 +79,7 @@ code, pre, kbd { font-family: var(--mono); }
 .tag-total { margin-left: 5px; letter-spacing: 0; }
 .tag-cloud { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 10px; }
 .tag-chip { max-width: 100%; border: 1px solid var(--border); background: var(--bg-card); border-radius: 4px; padding: 4px 7px; color: var(--text-secondary); font: 10px var(--mono); line-height: 1.4; text-align: left; overflow-wrap: anywhere; }
+.tag-count { margin-left: 3px; color: var(--text-muted); }
 .tag-chip:hover, .tag-chip.filter-active { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 .sidebar-about { margin-top: 38px; border-top: 1px solid var(--border); padding: 22px 10px 0; display: flex; flex-direction: column; gap: 7px; color: var(--text-secondary); font-size: 11px; }
 .sidebar-about .sidebar-label { padding: 0; margin-bottom: 4px; }
