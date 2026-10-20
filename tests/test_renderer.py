@@ -84,9 +84,11 @@ class TestRenderIndex:
         mp = _make_marketplace()
         render_index(mp, tmp_path)
         content = (tmp_path / "index.html").read_text()
+        assert 'class="tag-cloud"' in content
         assert 'data-filter-type="tag"' in content
         assert 'data-filter-value="tool"' in content
         assert 'data-filter-value="ci"' in content
+        assert "tag-filters" not in content
 
     def test_contains_tool_filter_buttons(self, tmp_path: Path) -> None:
         mp = _make_marketplace()

@@ -9,7 +9,17 @@
     var count = document.getElementById('result-count');
     var empty = document.getElementById('empty-state');
     var sort = document.getElementById('plugin-sort');
-    var filters = { category: '', tool: '', tag: '' };
+    var filters = { category: '', tool: '', tags: new Set() };
+
+    function addSelectedFilter(container, key, value, remove) {
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'selected-filter';
+        chip.textContent = key + ': ' + value + ' ×';
+        chip.setAttribute('aria-label', 'Remove ' + key + ' filter: ' + value);
+        chip.addEventListener('click', function () { remove(); update(true); });
+        container.appendChild(chip);
+    }
 
     function update(save) {
         var query = search.value.trim().toLowerCase();
@@ -20,29 +30,28 @@
             var matches = (!query || text.indexOf(query) !== -1)
                 && (!filters.category || data.category === filters.category)
                 && (!filters.tool || data.tools.trim().split(/\s+/).includes(filters.tool))
-                && (!filters.tag || JSON.parse(data.tags).includes(filters.tag));
+                && (!filters.tags.size || JSON.parse(data.tags).some(function (tag) { return filters.tags.has(tag); }));
             card.hidden = !matches;
             if (matches) visible++;
         });
         buttons.forEach(function (button) {
-            var active = filters[button.dataset.filterType] === button.dataset.filterValue;
+            var active = button.dataset.filterType === 'tag'
+                ? filters.tags.has(button.dataset.filterValue)
+                : filters[button.dataset.filterType] === button.dataset.filterValue;
             button.classList.toggle('filter-active', active);
             button.setAttribute('aria-pressed', String(active));
         });
-        var hasFilters = Object.values(filters).some(Boolean) || !!query;
+        var hasFilters = !!(filters.category || filters.tool || filters.tags.size || query);
         all.classList.toggle('filter-active', !hasFilters);
         all.setAttribute('aria-pressed', String(!hasFilters));
         var selected = document.getElementById('active-filters');
         selected.replaceChildren();
-        Object.keys(filters).forEach(function (key) {
+        ['category', 'tool'].forEach(function (key) {
             if (!filters[key]) return;
-            var chip = document.createElement('button');
-            chip.type = 'button';
-            chip.className = 'selected-filter';
-            chip.textContent = key + ': ' + filters[key] + ' ×';
-            chip.setAttribute('aria-label', 'Remove ' + key + ' filter: ' + filters[key]);
-            chip.addEventListener('click', function () { filters[key] = ''; update(true); });
-            selected.appendChild(chip);
+            addSelectedFilter(selected, key, filters[key], function () { filters[key] = ''; });
+        });
+        filters.tags.forEach(function (tag) {
+            addSelectedFilter(selected, 'tag', tag, function () { filters.tags.delete(tag); });
         });
         selected.hidden = !selected.childElementCount;
         document.querySelector('.results-toolbar .reset-filters').hidden = !hasFilters;
@@ -50,7 +59,8 @@
         empty.hidden = visible !== 0;
         if (save) {
             var params = new URLSearchParams();
-            Object.keys(filters).forEach(function (key) { if (filters[key]) params.set(key, filters[key]); });
+            ['category', 'tool'].forEach(function (key) { if (filters[key]) params.set(key, filters[key]); });
+            filters.tags.forEach(function (tag) { params.append('tag', tag); });
             if (search.value) params.set('q', search.value);
             if (sort.value !== 'default') params.set('sort', sort.value);
             if (grid.dataset.view !== 'grid') params.set('view', grid.dataset.view);
@@ -73,23 +83,32 @@
     }
     function restore() {
         var params = new URLSearchParams(location.search);
-        Object.keys(filters).forEach(function (key) { filters[key] = params.get(key) || ''; });
+        filters.category = params.get('category') || '';
+        filters.tool = params.get('tool') || '';
+        filters.tags = new Set(params.getAll('tag'));
         search.value = params.get('q') || '';
         sort.value = params.get('sort') === 'name' ? 'name' : 'default';
         setView(params.get('view'));
-        if (filters.tag && document.querySelector('.tag-filters')) document.querySelector('.tag-filters').open = true;
         orderCards();
         update(false);
     }
     function reset() {
-        Object.keys(filters).forEach(function (key) { filters[key] = ''; });
+        filters.category = '';
+        filters.tool = '';
+        filters.tags.clear();
         search.value = '';
         update(true);
     }
     buttons.forEach(function (button) {
         button.addEventListener('click', function () {
             var key = button.dataset.filterType;
-            filters[key] = filters[key] === button.dataset.filterValue ? '' : button.dataset.filterValue;
+            var value = button.dataset.filterValue;
+            if (key === 'tag') {
+                if (filters.tags.has(value)) filters.tags.delete(value);
+                else filters.tags.add(value);
+            } else {
+                filters[key] = filters[key] === value ? '' : value;
+            }
             update(true);
         });
     });

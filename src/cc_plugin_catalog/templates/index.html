@@ -20,6 +20,14 @@
     {% endfor %}
 </div>
 {% endif %}
+{% if tags %}
+<div class="sidebar-section tag-section">
+    <div class="sidebar-label">Tags <span class="tag-total">{{ tags | length }}</span></div>
+    <div class="tag-cloud" role="group" aria-label="Filter by tags">
+        {% for tag in tags %}<button type="button" class="tag-chip filter-btn" data-filter-type="tag" data-filter-value="{{ tag }}" aria-pressed="false">{{ tag }}</button>{% endfor %}
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 {% block content %}
 <section class="catalog-heading">
@@ -31,9 +39,6 @@
     <label class="sort-label"><span class="sr-only">Sort plugins</span><select id="plugin-sort"><option value="default">Marketplace order</option><option value="name">Name: A–Z</option></select></label>
     <div class="view-switch" aria-label="View mode"><button type="button" class="view-btn" data-view="list" aria-label="List view" aria-pressed="false">☰</button><button type="button" class="view-btn active" data-view="grid" aria-label="Grid view" aria-pressed="true">▦</button></div>
 </div>
-{% if tags %}
-<details class="tag-filters"><summary>Filter by tag <span>{{ tags | length }}</span></summary><div class="tag-filter-list">{% for tag in tags %}<button type="button" class="badge badge-tag filter-btn" data-filter-type="tag" data-filter-value="{{ tag }}" aria-pressed="false">{{ tag }}</button>{% endfor %}</div></details>
-{% endif %}
 <div id="active-filters" class="active-filters" aria-label="Selected filters" hidden></div>
 <div class="results-toolbar"><div><span class="section-label">Plugins</span><span id="result-count" role="status" aria-live="polite">{{ marketplace.plugins | length }} results</span></div><button type="button" class="reset-filters" hidden>Clear filters <span aria-hidden="true">×</span></button></div>
 <section class="plugin-grid" id="plugin-grid" data-view="grid" aria-label="Plugins">
