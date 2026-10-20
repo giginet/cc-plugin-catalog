@@ -12,6 +12,13 @@ from jinja2 import Environment, PackageLoader
 from .models import Marketplace, Plugin
 
 TEMPLATES_DIR = Path(__file__).parent / "templates"
+STATIC_DIR = TEMPLATES_DIR / "static"
+ASSET_VERSION = hashlib.sha256(
+    b"".join(
+        (STATIC_DIR / name).read_bytes()
+        for name in ("style.css", "theme.js", "catalog.js")
+    )
+).hexdigest()[:8]
 
 
 def _plugin_color(name: str) -> int:
@@ -97,6 +104,7 @@ def render_index(
         tool_types=tool_types,
         base_url=base_url or "",
         logo=logo,
+        asset_version=ASSET_VERSION,
     )
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "index.html").write_text(html, encoding="utf-8")
@@ -120,6 +128,7 @@ def render_plugin_page(
         base_url=base_url or "",
         page_url=page_url,
         logo=logo,
+        asset_version=ASSET_VERSION,
     )
     plugin_dir = output_dir / "plugins" / plugin.name
     plugin_dir.mkdir(parents=True, exist_ok=True)
@@ -141,6 +150,7 @@ def render_category_page(
         label_value=label_value,
         plugins=plugins,
         marketplace=marketplace,
+        asset_version=ASSET_VERSION,
     )
     prefix = "categories" if label_type == "Category" else "tags"
     page_dir = output_dir / prefix / label_value

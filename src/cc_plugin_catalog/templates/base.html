@@ -12,8 +12,8 @@
     {% block og_url %}<meta property="og:url" content="{{ base_url }}/">{% endblock %}
     {% if logo %}<meta property="og:image" content="{% block og_image %}{{ base_url }}/static/{{ logo }}{% endblock %}">{% endif %}
     {% endif %}
-    <link rel="stylesheet" href="{% block css_path %}static/style.css{% endblock %}">
-    <script src="{% block js_path %}static/theme.js{% endblock %}"></script>
+    <link rel="stylesheet" href="{% block css_path %}static/style.css{% endblock %}?v={{ asset_version }}">
+    <script src="{% block js_path %}static/theme.js{% endblock %}?v={{ asset_version }}"></script>
 </head>
 <body>
     <a class="skip-link" href="#main-content">Skip to content</a>

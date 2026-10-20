@@ -142,17 +142,18 @@ class TestRenderPluginPage:
         assert "install-section" in content
         assert "/plugin install plugin-a@test-marketplace" in content
         assert "claude plugin install plugin-a@test-marketplace" in content
-        assert "install-tab" in content
+        assert "install-toggle" in content
         assert "copy-btn" in content
 
-    def test_install_commands_tab_switch(self, tmp_path: Path) -> None:
+    def test_install_commands_method_switch(self, tmp_path: Path) -> None:
         mp = _make_marketplace()
         render_plugin_page(mp.plugins[0], mp, tmp_path)
         content = (tmp_path / "plugins" / "plugin-a" / "index.html").read_text()
-        assert 'data-tab="claude-code"' in content
-        assert 'data-tab="bash"' in content
-        assert 'data-panel="claude-code"' in content
-        assert 'data-panel="bash"' in content
+        assert 'data-platform="claude"' in content
+        assert 'data-method="agent"' in content
+        assert 'data-method="bash"' in content
+        assert "/plugin install plugin-a@test-marketplace" in content
+        assert "claude plugin install plugin-a@test-marketplace" in content
 
     def test_category_links_to_filtered_index(self, tmp_path: Path) -> None:
         mp = _make_marketplace()

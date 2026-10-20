@@ -202,12 +202,18 @@ def test_dual_marketplace_installation_tabs(codex_repo: Path, tmp_path: Path) ->
     remote = (output / "plugins/remote/index.html").read_text()
     assert '<span class="platform-label">Codex</span>' in index
     assert '<span class="platform-label">Claude Code</span>' in index
-    assert 'data-tab="codex"' in helper
-    assert 'data-tab="claude-code"' in helper
+    assert 'data-platform="codex"' in helper
+    assert 'data-platform="claude"' in helper
+    assert 'data-method="agent"' in helper
+    assert 'data-method="bash"' in helper
+    assert 'data-platform="codex" data-method="agent"' in helper
+    assert 'data-platform="codex" data-method="bash"' in helper
+    assert 'data-platform="claude" data-method="agent"' in helper
+    assert 'data-platform="claude" data-method="bash"' in helper
     assert "codex plugin marketplace add example/plugins" in helper
     assert "/plugin install helper@claude-marketplace" in helper
-    assert 'data-panel="codex"' in remote
-    assert 'data-panel="claude-code"' in remote
+    assert 'data-platform="codex" data-method="agent"' in remote
+    assert 'data-platform="claude" data-method="agent"' in remote
     assert "not available for installation in Codex" in remote
     assert "codex plugin marketplace add" not in remote
 
@@ -235,8 +241,8 @@ def test_explicit_claude_catalog(codex_repo: Path, tmp_path: Path) -> None:
     claude_only = (output / "plugins/claude-only/index.html").read_text()
     assert "/plugin install helper@legacy" in detail
     assert "codex plugin marketplace add example/plugins" in detail
-    assert 'class="install-tab active" data-tab="claude-code"' in detail
-    assert 'data-tab="codex"' not in claude_only
+    assert 'class="install-toggle active" data-platform="claude"' in detail
+    assert 'data-platform="codex"' not in claude_only
     assert "/plugin install claude-only@legacy" in claude_only
 
 

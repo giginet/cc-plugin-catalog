@@ -91,28 +91,44 @@
     {% set has_codex = 'codex' in formats %}
     {% set has_claude = 'claude' in formats %}
     {% set codex_default = has_codex and (not has_claude or (marketplace.format == 'codex' and plugin.installation != 'NOT_AVAILABLE')) %}
-    {% if has_claude %}
-    <div class="install-tabs" aria-label="Installation method">
-        {% if has_codex %}<button type="button" class="install-tab{% if codex_default %} active{% endif %}" data-tab="codex" aria-pressed="{{ 'true' if codex_default else 'false' }}">Codex</button>{% endif %}
-        <button type="button" class="install-tab{% if not codex_default %} active{% endif %}" data-tab="claude-code" aria-pressed="{{ 'false' if codex_default else 'true' }}">Claude Code</button>
-        <button type="button" class="install-tab" data-tab="bash" aria-pressed="false">Bash</button>
+    <div class="install-switches">
+        <div class="install-toggle-row">
+            <span class="install-toggle-label">Platform</span>
+            <div class="install-toggle-group" role="group" aria-label="Platform">
+                {% if has_codex %}<button type="button" class="install-toggle{% if codex_default %} active{% endif %}" data-platform="codex" aria-pressed="{{ 'true' if codex_default else 'false' }}">Codex</button>{% endif %}
+                {% if has_claude %}<button type="button" class="install-toggle{% if not codex_default %} active{% endif %}" data-platform="claude" aria-pressed="{{ 'false' if codex_default else 'true' }}">Claude Code</button>{% endif %}
+            </div>
+        </div>
+        <div class="install-toggle-row">
+            <span class="install-toggle-label">Run in</span>
+            <div class="install-toggle-group" role="group" aria-label="Run in">
+                <button type="button" class="install-toggle active" data-method="agent" aria-pressed="true">Agent</button>
+                <button type="button" class="install-toggle" data-method="bash" aria-pressed="false">Bash</button>
+            </div>
+        </div>
     </div>
-    {% endif %}
     {% if has_codex %}
-    <div class="install-panel{% if codex_default %} active{% endif %}" data-panel="codex">
-    {% if plugin.installation == 'NOT_AVAILABLE' %}
-    <p>This plugin is not available for installation in Codex.</p>
-    {% else %}
-    <p>Add the marketplace, then select {{ plugin.title }} in the Codex app's plugin directory.</p>
-    <div class="code-block">
-        <code>codex plugin marketplace add {{ (marketplace.repository_id or marketplace.name) | shellquote }}</code>
-        <button type="button" class="copy-btn" aria-label="Copy to clipboard">Copy</button>
+    <div class="install-panel{% if codex_default %} active{% endif %}" data-platform="codex" data-method="agent">
+        {% if plugin.installation == 'NOT_AVAILABLE' %}
+        <p>This plugin is not available for installation in Codex.</p>
+        {% else %}
+        <p>Open this marketplace repository in the Codex app. In the Plugins Directory, choose {{ marketplace.title }} and install {{ plugin.title }}.</p>
+        {% endif %}
     </div>
-    {% endif %}
+    <div class="install-panel" data-platform="codex" data-method="bash">
+        {% if plugin.installation == 'NOT_AVAILABLE' %}
+        <p>This plugin is not available for installation in Codex.</p>
+        {% else %}
+        <p>Add the marketplace from your terminal, then install {{ plugin.title }} in the Codex app's Plugins Directory.</p>
+        <div class="code-block">
+            <code>codex plugin marketplace add {{ (marketplace.repository_id or marketplace.name) | shellquote }}</code>
+            <button type="button" class="copy-btn" aria-label="Copy to clipboard">Copy</button>
+        </div>
+        {% endif %}
     </div>
     {% endif %}
     {% if has_claude %}
-    <div class="install-panel{% if not codex_default %} active{% endif %}" data-panel="claude-code">
+    <div class="install-panel{% if not codex_default %} active{% endif %}" data-platform="claude" data-method="agent">
         <div class="code-block">
             <code>/plugin marketplace add {{ marketplace.repository_id or marketplace.name }}</code>
             <button type="button" class="copy-btn" aria-label="Copy to clipboard">Copy</button>
@@ -122,7 +138,7 @@
             <button type="button" class="copy-btn" aria-label="Copy to clipboard">Copy</button>
         </div>
     </div>
-    <div class="install-panel" data-panel="bash">
+    <div class="install-panel" data-platform="claude" data-method="bash">
         <div class="code-block">
             <code>claude plugin marketplace add {{ marketplace.repository_id or marketplace.name }}</code>
             <button type="button" class="copy-btn" aria-label="Copy to clipboard">Copy</button>
@@ -138,17 +154,26 @@
 
 <script>
 (function() {
-    var tabs = document.querySelectorAll('.install-tab');
+    var platformButtons = document.querySelectorAll('.install-toggle[data-platform]');
+    var methodButtons = document.querySelectorAll('.install-toggle[data-method]');
     var panels = document.querySelectorAll('.install-panel');
-    tabs.forEach(function(tab) {
-        tab.addEventListener('click', function() {
-            tabs.forEach(function(t) { t.classList.remove('active'); });
-            panels.forEach(function(p) { p.classList.remove('active'); });
-            tab.classList.add('active');
-            tabs.forEach(function(t) { t.setAttribute('aria-pressed', String(t === tab)); });
-            var panel = document.querySelector('[data-panel="' + tab.dataset.tab + '"]');
-            if (panel) panel.classList.add('active');
+    function select(buttons, selected) {
+        buttons.forEach(function(button) {
+            var active = button === selected;
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-pressed', String(active));
         });
+        var platform = document.querySelector('.install-toggle[data-platform].active').dataset.platform;
+        var method = document.querySelector('.install-toggle[data-method].active').dataset.method;
+        panels.forEach(function(panel) {
+            panel.classList.toggle('active', panel.dataset.platform === platform && panel.dataset.method === method);
+        });
+    }
+    platformButtons.forEach(function(button) {
+        button.addEventListener('click', function() { select(platformButtons, button); });
+    });
+    methodButtons.forEach(function(button) {
+        button.addEventListener('click', function() { select(methodButtons, button); });
     });
     document.querySelectorAll('.copy-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {

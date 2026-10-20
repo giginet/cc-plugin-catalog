@@ -42,4 +42,4 @@
 <div id="empty-state" class="empty-state" hidden><span class="empty-symbol" aria-hidden="true">[ ∅ ]</span><h2>No matching plugins</h2><p>Try a different search or clear the selected filters.</p><button type="button" class="reset-filters link-button">Clear filters</button></div>
 <div class="catalog-end"><span aria-hidden="true">└─</span> End of catalog <span class="catalog-end-line"></span><span>{{ marketplace.name }}</span></div>
 {% endblock %}
-{% block scripts %}<script src="static/catalog.js"></script>{% endblock %}
+{% block scripts %}<script src="static/catalog.js?v={{ asset_version }}"></script>{% endblock %}

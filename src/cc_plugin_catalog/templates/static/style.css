@@ -202,9 +202,12 @@ a.tag:hover { color: var(--accent); border-color: var(--accent); }
 .terminal-label span { color: var(--accent); }
 .install-section h2 { font-size: 16px; font-weight: 550; margin-bottom: 16px; }
 .install-section p { color: var(--text-secondary); font-size: 12px; margin-bottom: 14px; }
-.install-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
-.install-tab { background: none; border: 0; border-bottom: 1px solid transparent; padding: 8px 10px; margin-bottom: -1px; font-size: 11px; color: var(--text-secondary); }
-.install-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.install-switches { display: flex; flex-direction: column; gap: 9px; margin-bottom: 17px; }
+.install-toggle-row { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.install-toggle-label { width: 48px; flex-shrink: 0; color: var(--text-secondary); font: 9px var(--mono); text-transform: uppercase; }
+.install-toggle-group { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 2px; padding: 3px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 5px; }
+.install-toggle { border: 1px solid transparent; background: transparent; border-radius: 3px; color: var(--text-secondary); padding: 4px 8px; font-size: 11px; }
+.install-toggle.active { background: var(--bg-card); border-color: var(--border-strong); color: var(--accent); }
 .install-panel { display: none; }
 .install-panel.active { display: block; }
 .code-block { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; padding: 13px; margin-top: 10px; }
