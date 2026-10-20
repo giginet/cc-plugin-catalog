@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import shlex
 import shutil
 from pathlib import Path
@@ -13,12 +14,18 @@ from .models import Marketplace, Plugin
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 
+def _plugin_color(name: str) -> int:
+    """Choose a stable palette color for a plugin across all catalog pages."""
+    return hashlib.sha256(name.encode("utf-8")).digest()[0] % 8
+
+
 def _create_env() -> Environment:
     env = Environment(
         loader=PackageLoader("cc_plugin_catalog", "templates"),
         autoescape=True,
     )
     env.filters["shellquote"] = shlex.quote
+    env.filters["plugin_color"] = _plugin_color
     return env
 
 

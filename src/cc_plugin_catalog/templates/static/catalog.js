@@ -53,7 +53,7 @@
             Object.keys(filters).forEach(function (key) { if (filters[key]) params.set(key, filters[key]); });
             if (search.value) params.set('q', search.value);
             if (sort.value !== 'default') params.set('sort', sort.value);
-            if (grid.dataset.view !== 'list') params.set('view', grid.dataset.view);
+            if (grid.dataset.view !== 'grid') params.set('view', grid.dataset.view);
             var suffix = params.toString();
             history.replaceState(null, '', location.pathname + (suffix ? '?' + suffix : ''));
         }
@@ -64,7 +64,7 @@
         ordered.forEach(function (card) { grid.appendChild(card); });
     }
     function setView(view) {
-        grid.dataset.view = view === 'grid' ? 'grid' : 'list';
+        grid.dataset.view = view === 'list' ? 'list' : 'grid';
         document.querySelectorAll('.view-btn').forEach(function (button) {
             var active = button.dataset.view === grid.dataset.view;
             button.classList.toggle('active', active);

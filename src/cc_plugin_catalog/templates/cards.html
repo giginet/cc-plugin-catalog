@@ -6,7 +6,7 @@
 {% endmacro %}
 
 {% macro card(plugin, prefix='') %}
-<article class="plugin-card" data-name="{{ plugin.name }} {{ plugin.title }}" data-description="{{ plugin.description or '' }}" data-category="{{ plugin.category or '' }}" data-tags='{{ plugin.tags | tojson }}' data-keywords="{{ plugin.keywords | join(' ') }}" data-tools="{% if plugin.components.skills %}skills {% endif %}{% if plugin.components.commands %}commands {% endif %}{% if plugin.components.agents %}agents {% endif %}{% if plugin.components.hooks %}hooks {% endif %}{% if plugin.components.mcp_servers %}mcp {% endif %}{% if plugin.components.lsp_servers %}lsp {% endif %}{% if plugin.components.apps %}apps {% endif %}">
+<article class="plugin-card plugin-color-{{ plugin.name | plugin_color }}" data-name="{{ plugin.name }} {{ plugin.title }}" data-description="{{ plugin.description or '' }}" data-category="{{ plugin.category or '' }}" data-tags='{{ plugin.tags | tojson }}' data-keywords="{{ plugin.keywords | join(' ') }}" data-tools="{% if plugin.components.skills %}skills {% endif %}{% if plugin.components.commands %}commands {% endif %}{% if plugin.components.agents %}agents {% endif %}{% if plugin.components.hooks %}hooks {% endif %}{% if plugin.components.mcp_servers %}mcp {% endif %}{% if plugin.components.lsp_servers %}lsp {% endif %}{% if plugin.components.apps %}apps {% endif %}">
     <a href="{{ prefix }}plugins/{{ plugin.name }}/index.html" class="card-link">
         <span class="plugin-glyph" aria-hidden="true">{{ plugin.name[:2] | upper }}</span>
         <div class="card-body">

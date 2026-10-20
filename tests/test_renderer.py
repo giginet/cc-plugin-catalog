@@ -1,5 +1,6 @@
 """Tests for the renderer module."""
 
+import re
 from pathlib import Path
 
 from cc_plugin_catalog.models import (
@@ -329,6 +330,21 @@ class TestLogo:
 
 
 class TestRenderCategoryPage:
+    def test_plugin_color_matches_index(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_index(mp, tmp_path)
+        render_category_page("Category", "dev", mp.plugins[::-1], mp, tmp_path)
+
+        index = (tmp_path / "index.html").read_text()
+        category = (tmp_path / "categories" / "dev" / "index.html").read_text()
+        card = r'<article class="plugin-card (plugin-color-\d+)" data-name="plugin-a'
+        index_color = re.search(card, index)
+        category_color = re.search(card, category)
+
+        assert index_color is not None
+        assert category_color is not None
+        assert index_color.group(1) == category_color.group(1)
+
     def test_creates_category_page(self, tmp_path: Path) -> None:
         mp = _make_marketplace()
         render_category_page("Category", "dev", mp.plugins, mp, tmp_path)
