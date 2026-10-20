@@ -65,7 +65,7 @@ Auto-detection prefers the Codex marketplace when both files exist. To choose ex
 uvx cc-plugin-catalog build /path/to/marketplace-repo --marketplace-format codex -o _site
 ```
 
-When both marketplace manifests exist, the catalog shows both platform labels. Plugin pages offer Codex and Claude Code installation instructions when the plugin is listed in both manifests, with separate Agent and Bash instructions for each platform. The selected format still determines which plugins appear in the catalog; use `--marketplace-format claude` to browse Claude Code-only entries.
+When both marketplace manifests exist, the catalog shows both platform labels. Plugin pages offer Codex and Claude Code installation instructions when the plugin is listed in both manifests, with separate Agent and Bash instructions for each platform. Tags from matching entries in both manifests are combined for filtering. The selected format still determines which plugins appear in the catalog; use `--marketplace-format claude` to browse Claude Code-only entries.
 
 Codex marketplaces may omit `owner` and use `interface.displayName` for their title. Local sources can use `{"source": "local", "path": "./plugins/my-plugin"}` or a plain `"./plugins/my-plugin"` path, relative to the repository root. External sources are listed using marketplace metadata; their repositories are not downloaded.
 

@@ -189,7 +189,11 @@ def test_dual_marketplace_installation_tabs(codex_repo: Path, tmp_path: Path) ->
         {
             "name": "claude-marketplace",
             "plugins": [
-                {"name": "helper", "source": "./plugins/helper"},
+                {
+                    "name": "helper",
+                    "source": "./plugins/helper",
+                    "tags": ["iOS", "Tools"],
+                },
                 {"name": "remote", "source": "./plugins/remote"},
             ],
         },
@@ -202,6 +206,10 @@ def test_dual_marketplace_installation_tabs(codex_repo: Path, tmp_path: Path) ->
     remote = (output / "plugins/remote/index.html").read_text()
     assert '<span class="platform-label">Codex</span>' in index
     assert '<span class="platform-label">Claude Code</span>' in index
+    assert 'data-filter-value="iOS"' in index
+    assert 'data-filter-value="Tools"' in index
+    assert (output / "tags" / "iOS" / "index.html").exists()
+    assert 'href="../../index.html?tag=iOS"' in helper
     assert 'data-platform="codex"' in helper
     assert 'data-platform="claude"' in helper
     assert 'data-method="agent"' in helper

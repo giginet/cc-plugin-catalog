@@ -173,6 +173,11 @@ def build_site(
         fmt: {entry.name for entry in marketplace_config.plugins}
         for fmt, marketplace_config in configs.items()
     }
+    other_entries = (
+        {entry.name: entry for entry in configs[other_format].plugins}
+        if other_format in configs
+        else {}
+    )
     codex_installations = (
         {entry.name: entry.installation for entry in configs["codex"].plugins}
         if "codex" in configs
@@ -183,6 +188,10 @@ def build_site(
 
     plugins: list[Plugin] = []
     for entry in config.plugins:
+        other_entry = other_entries.get(entry.name)
+        tags = list(
+            dict.fromkeys([*entry.tags, *(other_entry.tags if other_entry else [])])
+        )
         plugin_path = _resolve_plugin_path(repo_path, entry.source)
         is_local = plugin_path is not None and plugin_path.is_dir()
 
@@ -201,7 +210,7 @@ def build_site(
             license_id=entry.license,
             keywords=entry.keywords,
             category=entry.category,
-            tags=entry.tags,
+            tags=tags,
             source=entry.source,
             source_url=source_url,
             is_local=is_local,
