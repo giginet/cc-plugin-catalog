@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
+PluginFormat = Literal["claude", "codex"]
 MarketplaceFormat = Literal["auto", "claude", "codex"]
 
 
@@ -146,6 +147,7 @@ class Plugin:
     is_local: bool = False
     display_name: str | None = None
     installation: str | None = None
+    supported_formats: list[PluginFormat] = field(default_factory=list)
 
     @property
     def title(self) -> str:
@@ -172,6 +174,8 @@ class Marketplace:
     plugins: list[Plugin] = field(default_factory=list)
     format: MarketplaceFormat = "claude"
     display_name: str | None = None
+    supported_formats: list[PluginFormat] = field(default_factory=list)
+    claude_marketplace_name: str | None = None
 
     @property
     def title(self) -> str:
