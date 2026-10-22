@@ -157,8 +157,9 @@ def build_site(
     output_dir = output_dir.resolve()
 
     config = parse_marketplace(repo_path, marketplace_format)
-    configs = {config.format: config}
-    other_format: PluginFormat = "claude" if config.format == "codex" else "codex"
+    primary_format: PluginFormat = "codex" if config.format == "codex" else "claude"
+    configs = {primary_format: config}
+    other_format: PluginFormat = "claude" if primary_format == "codex" else "codex"
     other_manifest = (
         repo_path / ".claude-plugin/marketplace.json"
         if other_format == "claude"
@@ -169,15 +170,18 @@ def build_site(
     supported_formats: list[PluginFormat] = [
         fmt for fmt in ("codex", "claude") if fmt in configs
     ]
-    plugin_names = {
-        fmt: {entry.name for entry in marketplace_config.plugins}
+    entries_by_format = {
+        fmt: {entry.name: entry for entry in marketplace_config.plugins}
         for fmt, marketplace_config in configs.items()
     }
-    other_entries = (
-        {entry.name: entry for entry in configs[other_format].plugins}
-        if other_format in configs
-        else {}
-    )
+    plugin_names = {fmt: set(entries) for fmt, entries in entries_by_format.items()}
+    selected_entries = [(entry, primary_format) for entry in config.plugins]
+    if marketplace_format == "auto" and other_format in configs:
+        selected_entries.extend(
+            (entry, other_format)
+            for entry in configs[other_format].plugins
+            if entry.name not in plugin_names[primary_format]
+        )
     codex_installations = (
         {entry.name: entry.installation for entry in configs["codex"].plugins}
         if "codex" in configs
@@ -187,8 +191,11 @@ def build_site(
     branch = _get_default_branch(repo_path)
 
     plugins: list[Plugin] = []
-    for entry in config.plugins:
-        other_entry = other_entries.get(entry.name)
+    for entry, entry_format in selected_entries:
+        counterpart_format = (
+            other_format if entry_format == primary_format else primary_format
+        )
+        other_entry = entries_by_format.get(counterpart_format, {}).get(entry.name)
         tags = list(
             dict.fromkeys([*entry.tags, *(other_entry.tags if other_entry else [])])
         )
@@ -222,7 +229,7 @@ def build_site(
 
         if is_local and plugin_path is not None:
             # Merge with plugin.json (plugin.json takes priority)
-            manifest = parse_plugin_manifest(plugin_path, config.format)
+            manifest = parse_plugin_manifest(plugin_path, entry_format)
             if manifest is not None:
                 plugin.description = manifest.description or plugin.description
                 plugin.display_name = manifest.display_name

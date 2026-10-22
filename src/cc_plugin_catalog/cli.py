@@ -41,7 +41,7 @@ def _add_common_options(parser: argparse.ArgumentParser) -> None:
         "--marketplace-format",
         choices=("auto", "claude", "codex"),
         default="auto",
-        help="Marketplace format (auto prefers Codex when both manifests exist).",
+        help="Marketplace format (auto includes both, preferring Codex metadata).",
     )
     parser.add_argument(
         "--marketplace-repository",

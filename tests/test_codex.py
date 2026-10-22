@@ -173,6 +173,9 @@ def test_codex_catalog_end_to_end(codex_repo: Path, tmp_path: Path) -> None:
     assert "cc-plugin-catalog" in index
     assert "codex plugin marketplace add example/plugins" in detail
     assert "claude plugin" not in detail
+    assert 'aria-label="Supported harnesses"' in detail
+    assert '<span class="plugin-harness">Codex</span>' in detail
+    assert '<span class="plugin-harness">Claude Code</span>' not in detail
     assert "Greet the user" in detail and "Say hello." in detail
     assert "https://example.com/mcp" in detail
     assert "calendar-app" in detail
@@ -180,6 +183,7 @@ def test_codex_catalog_end_to_end(codex_repo: Path, tmp_path: Path) -> None:
     assert "Team Helper" in category and "Apps" in category
     assert "not available for installation" in unavailable
     assert "codex plugin marketplace add" not in unavailable
+    assert "Installation unavailable" in unavailable
 
 
 def test_dual_marketplace_installation_tabs(codex_repo: Path, tmp_path: Path) -> None:
@@ -226,6 +230,73 @@ def test_dual_marketplace_installation_tabs(codex_repo: Path, tmp_path: Path) ->
     assert "codex plugin marketplace add" not in remote
 
 
+def test_auto_catalog_includes_plugins_from_either_marketplace(
+    codex_repo: Path, tmp_path: Path
+) -> None:
+    write_json(
+        codex_repo,
+        ".claude-plugin/marketplace.json",
+        {
+            "name": "claude-marketplace",
+            "plugins": [
+                {"name": "helper", "source": "./plugins/helper", "tags": ["shared"]},
+                {
+                    "name": "claude-only",
+                    "source": "./plugins/claude-only",
+                    "description": "Claude marketplace description",
+                    "tags": ["claude-tag"],
+                },
+            ],
+        },
+    )
+    plugin = codex_repo / "plugins/claude-only"
+    write_json(
+        plugin,
+        ".claude-plugin/plugin.json",
+        {"name": "claude-only", "description": "Claude manifest description"},
+    )
+    write_json(
+        plugin,
+        ".codex-plugin/plugin.json",
+        {"name": "claude-only", "description": "Unlisted Codex manifest"},
+    )
+
+    output = tmp_path / "auto-site"
+    build_site(codex_repo, output, marketplace_repository="example/plugins")
+
+    index = (output / "index.html").read_text()
+    helper = (output / "plugins/helper/index.html").read_text()
+    codex_only = (output / "plugins/remote/index.html").read_text()
+    claude_only = (output / "plugins/claude-only/index.html").read_text()
+    assert index.count('href="plugins/helper/index.html"') == 1
+    assert index.count('href="plugins/remote/index.html"') == 1
+    assert index.count('href="plugins/claude-only/index.html"') == 1
+    assert index.index('href="plugins/helper/index.html"') < index.index(
+        'href="plugins/claude-only/index.html"'
+    )
+    assert '<span class="plugin-harness">Codex</span>' in helper
+    assert '<span class="plugin-harness">Claude Code</span>' in helper
+    assert '<span class="plugin-harness">Codex' in codex_only
+    assert '<span class="plugin-harness">Claude Code</span>' not in codex_only
+    assert 'data-platform="claude"' not in codex_only
+    assert "Claude manifest description" in claude_only
+    assert "Unlisted Codex manifest" not in claude_only
+    assert '<span class="plugin-harness">Claude Code</span>' in claude_only
+    assert '<span class="plugin-harness">Codex</span>' not in claude_only
+    assert 'data-platform="codex"' not in claude_only
+    assert "/plugin install claude-only@claude-marketplace" in claude_only
+    assert (output / "tags/claude-tag/index.html").exists()
+
+    codex_output = tmp_path / "codex-site"
+    build_site(
+        codex_repo,
+        codex_output,
+        marketplace_repository="example/plugins",
+        marketplace_format="codex",
+    )
+    assert not (codex_output / "plugins/claude-only/index.html").exists()
+
+
 def test_explicit_claude_catalog(codex_repo: Path, tmp_path: Path) -> None:
     write_json(
         codex_repo,
@@ -252,6 +323,7 @@ def test_explicit_claude_catalog(codex_repo: Path, tmp_path: Path) -> None:
     assert 'class="install-toggle active" data-platform="claude"' in detail
     assert 'data-platform="codex"' not in claude_only
     assert "/plugin install claude-only@legacy" in claude_only
+    assert not (output / "plugins/remote/index.html").exists()
 
 
 def test_portable_manifest_and_inline_overlay(codex_repo: Path) -> None:
