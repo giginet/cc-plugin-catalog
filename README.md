@@ -59,13 +59,13 @@ This generates a fully static site in `_site/` that can be deployed anywhere.
 | Claude Code | `.claude-plugin/marketplace.json` | `.claude-plugin/plugin.json` |
 | Codex | `.agents/plugins/marketplace.json` | `plugin.json`, `.codex-plugin/plugin.json`, or `.claude-plugin/plugin.json` |
 
-Auto-detection prefers the Codex marketplace when both files exist. To choose explicitly, use `--marketplace-format claude` or `--marketplace-format codex` with either `build` or `preview`:
+Auto-detection reads both marketplace manifests when both files exist. It uses Codex marketplace metadata for shared plugins and includes plugins listed in only one manifest. To show only one marketplace's entries, use `--marketplace-format claude` or `--marketplace-format codex` with either `build` or `preview`:
 
 ```bash
 uvx cc-plugin-catalog build /path/to/marketplace-repo --marketplace-format codex -o _site
 ```
 
-When both marketplace manifests exist, the catalog shows both platform labels. Plugin pages offer Codex and Claude Code installation instructions when the plugin is listed in both manifests, with separate Agent and Bash instructions for each platform. Tags from matching entries in both manifests are combined for filtering. The selected format still determines which plugins appear in the catalog; use `--marketplace-format claude` to browse Claude Code-only entries.
+When both marketplace manifests exist, the default catalog contains each plugin once, in Codex marketplace order followed by Claude Code-only entries. Detail pages show the harnesses supported by each plugin and offer installation instructions only for those harnesses, with separate Agent and Bash instructions. Tags from matching entries in both manifests are combined for filtering. An explicit format limits the catalog to entries in that manifest, while still showing both harnesses for shared plugins.
 
 Codex marketplaces may omit `owner` and use `interface.displayName` for their title. Local sources can use `{"source": "local", "path": "./plugins/my-plugin"}` or a plain `"./plugins/my-plugin"` path, relative to the repository root. External sources are listed using marketplace metadata; their repositories are not downloaded.
 

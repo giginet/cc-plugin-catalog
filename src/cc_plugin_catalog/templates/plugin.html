@@ -42,6 +42,13 @@
     <p class="plugin-description">{{ plugin.description }}</p>
     {% endif %}
 
+    <div class="plugin-harnesses" aria-label="Supported harnesses">
+        <span class="plugin-harnesses-label">Harnesses</span>
+        {% for format in plugin.supported_formats or [marketplace.format] %}
+        <span class="plugin-harness">{{ 'Codex' if format == 'codex' else 'Claude Code' }}{% if format == 'codex' and plugin.installation == 'NOT_AVAILABLE' %} <span class="harness-unavailable">Installation unavailable</span>{% endif %}</span>
+        {% endfor %}
+    </div>
+
     <div class="plugin-meta">
         {% if plugin.version %}
         <span class="meta-item">Version: <strong>{{ plugin.version }}</strong></span>
