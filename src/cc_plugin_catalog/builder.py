@@ -9,7 +9,7 @@ import subprocess
 from pathlib import Path
 
 from .markdown_utils import render_markdown
-from .models import Marketplace, MarketplaceFormat, Plugin
+from .models import Marketplace, MarketplaceFormat, Plugin, PluginFormat
 from .parser import parse_marketplace, parse_plugin_manifest
 from .renderer import render_site
 from .scanner import read_license, read_readme, scan_plugin
@@ -157,11 +157,41 @@ def build_site(
     output_dir = output_dir.resolve()
 
     config = parse_marketplace(repo_path, marketplace_format)
+    configs = {config.format: config}
+    other_format: PluginFormat = "claude" if config.format == "codex" else "codex"
+    other_manifest = (
+        repo_path / ".claude-plugin/marketplace.json"
+        if other_format == "claude"
+        else repo_path / ".agents/plugins/marketplace.json"
+    )
+    if other_manifest.is_file():
+        configs[other_format] = parse_marketplace(repo_path, other_format)
+    supported_formats: list[PluginFormat] = [
+        fmt for fmt in ("codex", "claude") if fmt in configs
+    ]
+    plugin_names = {
+        fmt: {entry.name for entry in marketplace_config.plugins}
+        for fmt, marketplace_config in configs.items()
+    }
+    other_entries = (
+        {entry.name: entry for entry in configs[other_format].plugins}
+        if other_format in configs
+        else {}
+    )
+    codex_installations = (
+        {entry.name: entry.installation for entry in configs["codex"].plugins}
+        if "codex" in configs
+        else {}
+    )
     repo_base_url = _get_repo_base_url(repo_path)
     branch = _get_default_branch(repo_path)
 
     plugins: list[Plugin] = []
     for entry in config.plugins:
+        other_entry = other_entries.get(entry.name)
+        tags = list(
+            dict.fromkeys([*entry.tags, *(other_entry.tags if other_entry else [])])
+        )
         plugin_path = _resolve_plugin_path(repo_path, entry.source)
         is_local = plugin_path is not None and plugin_path.is_dir()
 
@@ -180,11 +210,14 @@ def build_site(
             license_id=entry.license,
             keywords=entry.keywords,
             category=entry.category,
-            tags=entry.tags,
+            tags=tags,
             source=entry.source,
             source_url=source_url,
             is_local=is_local,
-            installation=entry.installation,
+            installation=codex_installations.get(entry.name),
+            supported_formats=[
+                fmt for fmt in supported_formats if entry.name in plugin_names[fmt]
+            ],
         )
 
         if is_local and plugin_path is not None:
@@ -232,6 +265,8 @@ def build_site(
         plugins=plugins,
         format=config.format,
         display_name=config.display_name,
+        supported_formats=supported_formats,
+        claude_marketplace_name=configs["claude"].name if "claude" in configs else None,
     )
 
     logo_filename: str | None = None

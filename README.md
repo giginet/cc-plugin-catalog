@@ -65,11 +65,13 @@ Auto-detection prefers the Codex marketplace when both files exist. To choose ex
 uvx cc-plugin-catalog build /path/to/marketplace-repo --marketplace-format codex -o _site
 ```
 
+When both marketplace manifests exist, the catalog shows both platform labels. Plugin pages offer Codex and Claude Code installation instructions when the plugin is listed in both manifests, with separate Agent and Bash instructions for each platform. Tags from matching entries in both manifests are combined for filtering. The selected format still determines which plugins appear in the catalog; use `--marketplace-format claude` to browse Claude Code-only entries.
+
 Codex marketplaces may omit `owner` and use `interface.displayName` for their title. Local sources can use `{"source": "local", "path": "./plugins/my-plugin"}` or a plain `"./plugins/my-plugin"` path, relative to the repository root. External sources are listed using marketplace metadata; their repositories are not downloaded.
 
 For Codex plugins, the catalog uses `interface.displayName` and presentation metadata while keeping plugin identifiers in URLs. It reads declared Skills, MCP, and Apps paths in addition to conventional directories. Portable root `plugin.json` manifests use `skills/` and `mcp.json`, with OpenAI presentation settings from `extensions.com.openai` or the compatibility overlay.
 
-Codex detail pages show `codex plugin marketplace add` and direct users to select the plugin in the app. Entries marked `NOT_AVAILABLE` show an availability message instead of installation instructions.
+Codex detail pages direct Agent users to the Plugins Directory and show `codex plugin marketplace add` for Bash users. Entries marked `NOT_AVAILABLE` show an availability message instead of installation instructions.
 
 ## Deploy to GitHub Pages
 

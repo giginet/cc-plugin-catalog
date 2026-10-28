@@ -1,5 +1,6 @@
 """Tests for the renderer module."""
 
+import re
 from pathlib import Path
 
 from cc_plugin_catalog.models import (
@@ -83,9 +84,23 @@ class TestRenderIndex:
         mp = _make_marketplace()
         render_index(mp, tmp_path)
         content = (tmp_path / "index.html").read_text()
+        assert 'class="tag-cloud"' in content
         assert 'data-filter-type="tag"' in content
         assert 'data-filter-value="tool"' in content
         assert 'data-filter-value="ci"' in content
+        assert "tag-filters" not in content
+
+    def test_tags_are_sorted_by_plugin_count(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        mp.plugins[0].tags.append("tool")
+        render_index(mp, tmp_path)
+        content = (tmp_path / "index.html").read_text()
+        cloud = content.split('class="tag-cloud"', 1)[1].split("</div>", 1)[0]
+        buttons = re.findall(r'data-filter-value="([^"]+)"[^>]*>(.*?)</button>', cloud)
+        assert buttons == [
+            ("tool", 'tool <span class="tag-count">2</span>'),
+            ("ci", 'ci <span class="tag-count">1</span>'),
+        ]
 
     def test_contains_tool_filter_buttons(self, tmp_path: Path) -> None:
         mp = _make_marketplace()
@@ -141,17 +156,18 @@ class TestRenderPluginPage:
         assert "install-section" in content
         assert "/plugin install plugin-a@test-marketplace" in content
         assert "claude plugin install plugin-a@test-marketplace" in content
-        assert "install-tab" in content
+        assert "install-toggle" in content
         assert "copy-btn" in content
 
-    def test_install_commands_tab_switch(self, tmp_path: Path) -> None:
+    def test_install_commands_method_switch(self, tmp_path: Path) -> None:
         mp = _make_marketplace()
         render_plugin_page(mp.plugins[0], mp, tmp_path)
         content = (tmp_path / "plugins" / "plugin-a" / "index.html").read_text()
-        assert 'data-tab="claude-code"' in content
-        assert 'data-tab="bash"' in content
-        assert 'data-panel="claude-code"' in content
-        assert 'data-panel="bash"' in content
+        assert 'data-platform="claude"' in content
+        assert 'data-method="agent"' in content
+        assert 'data-method="bash"' in content
+        assert "/plugin install plugin-a@test-marketplace" in content
+        assert "claude plugin install plugin-a@test-marketplace" in content
 
     def test_category_links_to_filtered_index(self, tmp_path: Path) -> None:
         mp = _make_marketplace()
@@ -329,6 +345,21 @@ class TestLogo:
 
 
 class TestRenderCategoryPage:
+    def test_plugin_color_matches_index(self, tmp_path: Path) -> None:
+        mp = _make_marketplace()
+        render_index(mp, tmp_path)
+        render_category_page("Category", "dev", mp.plugins[::-1], mp, tmp_path)
+
+        index = (tmp_path / "index.html").read_text()
+        category = (tmp_path / "categories" / "dev" / "index.html").read_text()
+        card = r'<article class="plugin-card (plugin-color-\d+)" data-name="plugin-a'
+        index_color = re.search(card, index)
+        category_color = re.search(card, category)
+
+        assert index_color is not None
+        assert category_color is not None
+        assert index_color.group(1) == category_color.group(1)
+
     def test_creates_category_page(self, tmp_path: Path) -> None:
         mp = _make_marketplace()
         render_category_page("Category", "dev", mp.plugins, mp, tmp_path)

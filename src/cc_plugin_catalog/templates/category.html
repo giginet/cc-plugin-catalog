@@ -8,5 +8,5 @@
 {% block content %}
 <nav class="breadcrumb"><a href="../../index.html">All plugins</a><span>/</span><span>{{ label_type }}: {{ label_value }}</span></nav>
 <section class="catalog-heading"><div><div class="eyebrow">{{ label_type }}</div><h1>{{ label_value }}</h1><p class="marketplace-description">{{ plugins | length }} plugins in this collection.</p></div></section>
-<section class="plugin-grid" data-view="list">{% for plugin in plugins %}{{ card(plugin, '../../') }}{% endfor %}</section>
+<section class="plugin-grid" data-view="grid">{% for plugin in plugins %}{{ card(plugin, '../../') }}{% endfor %}</section>
 {% endblock %}

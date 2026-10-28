@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import hashlib
 import shlex
 import shutil
+from collections import Counter
 from pathlib import Path
 
 from jinja2 import Environment, PackageLoader
@@ -11,6 +13,18 @@ from jinja2 import Environment, PackageLoader
 from .models import Marketplace, Plugin
 
 TEMPLATES_DIR = Path(__file__).parent / "templates"
+STATIC_DIR = TEMPLATES_DIR / "static"
+ASSET_VERSION = hashlib.sha256(
+    b"".join(
+        (STATIC_DIR / name).read_bytes()
+        for name in ("style.css", "theme.js", "catalog.js")
+    )
+).hexdigest()[:8]
+
+
+def _plugin_color(name: str) -> int:
+    """Choose a stable palette color for a plugin across all catalog pages."""
+    return hashlib.sha256(name.encode("utf-8")).digest()[0] % 8
 
 
 def _create_env() -> Environment:
@@ -19,6 +33,7 @@ def _create_env() -> Environment:
         autoescape=True,
     )
     env.filters["shellquote"] = shlex.quote
+    env.filters["plugin_color"] = _plugin_color
     return env
 
 
@@ -30,12 +45,11 @@ def _collect_categories(plugins: list[Plugin]) -> list[str]:
     return sorted(cats)
 
 
-def _collect_tags(plugins: list[Plugin]) -> list[str]:
-    tags: set[str] = set()
-    for p in plugins:
-        for t in p.tags:
-            tags.add(t)
-    return sorted(tags)
+def _collect_tags(plugins: list[Plugin]) -> list[tuple[str, int]]:
+    counts = Counter(tag for plugin in plugins for tag in set(plugin.tags))
+    return sorted(
+        counts.items(), key=lambda item: (-item[1], item[0].casefold(), item[0])
+    )
 
 
 _TOOL_TYPES = [
@@ -90,6 +104,7 @@ def render_index(
         tool_types=tool_types,
         base_url=base_url or "",
         logo=logo,
+        asset_version=ASSET_VERSION,
     )
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "index.html").write_text(html, encoding="utf-8")
@@ -113,6 +128,7 @@ def render_plugin_page(
         base_url=base_url or "",
         page_url=page_url,
         logo=logo,
+        asset_version=ASSET_VERSION,
     )
     plugin_dir = output_dir / "plugins" / plugin.name
     plugin_dir.mkdir(parents=True, exist_ok=True)
@@ -134,6 +150,7 @@ def render_category_page(
         label_value=label_value,
         plugins=plugins,
         marketplace=marketplace,
+        asset_version=ASSET_VERSION,
     )
     prefix = "categories" if label_type == "Category" else "tags"
     page_dir = output_dir / prefix / label_value
